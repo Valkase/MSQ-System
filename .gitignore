@@ -1,0 +1,20 @@
+# Environment & secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
