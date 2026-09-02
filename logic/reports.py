@@ -18,7 +18,9 @@ from sqlalchemy.orm import Session
 
 from data.models.doctor import Doctor
 from data.models.transaction import Transaction
+from data.models.user import User
 from logic.dates import day_bounds_utc
+from logic.permissions import Permission, require_permission
 
 
 @dataclass(frozen=True)
@@ -43,18 +45,28 @@ _ZERO = Decimal("0.00")
 
 
 def doctor_totals_for_range(
-    session: Session, *, start_date: date, end_date: date, include_inactive_doctors: bool = True
+    session: Session,
+    *,
+    start_date: date,
+    end_date: date,
+    acting_user: User,
+    include_inactive_doctors: bool = True,
 ) -> list[DoctorTotals]:
     """
     Per-doctor totals (task plan 2.2) for an inclusive [start_date,
     end_date] range: transaction count, total billed, and each doctor's
-    share vs. the center's share of that doctor's transactions.
+    share vs. the center's share of that doctor's transactions. Requires
+    VIEW_REPORTS (task plan 2.4) — mainly guards against a deactivated
+    account pulling financial data, since both active roles hold this
+    permission today.
 
     Uses a LEFT JOIN from Doctor so a doctor with zero transactions in
     the range still appears with zeroed totals, rather than silently
     disappearing from the report — useful for spotting a doctor who
     hasn't seen any patients in a given period.
     """
+    require_permission(acting_user, Permission.VIEW_REPORTS)
+
     start_dt, end_dt = day_bounds_utc(start_date, end_date)
 
     q = (
@@ -91,11 +103,16 @@ def doctor_totals_for_range(
     ]
 
 
-def center_totals_for_range(session: Session, *, start_date: date, end_date: date) -> CenterTotals:
+def center_totals_for_range(
+    session: Session, *, start_date: date, end_date: date, acting_user: User
+) -> CenterTotals:
     """
     Clinic-wide totals (task plan 2.2) for an inclusive [start_date,
-    end_date] range, across all doctors combined.
+    end_date] range, across all doctors combined. Requires VIEW_REPORTS
+    (task plan 2.4).
     """
+    require_permission(acting_user, Permission.VIEW_REPORTS)
+
     start_dt, end_dt = day_bounds_utc(start_date, end_date)
 
     count, total, doctor_sum, center_sum = (

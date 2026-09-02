@@ -1,0 +1,47 @@
+{
+  "fields.full_name": "الاسم الكامل",
+  "fields.phone": "رقم الهاتف",
+  "fields.email": "البريد الإلكتروني",
+  "fields.address": "العنوان",
+  "fields.file_path": "مسار الملف",
+  "fields.description": "الوصف",
+  "fields.doctor_name": "اسم الطبيب",
+  "fields.standard_percentage": "النسبة القياسية",
+  "fields.total_amount": "المبلغ الإجمالي",
+
+  "validation.required": "{field} مطلوب.",
+  "validation.max_length": "يجب ألا يتجاوز {field} {max_length} حرفًا.",
+  "validation.phone_required": "رقم الهاتف مطلوب.",
+  "validation.phone_invalid_chars": "يجب أن يحتوي رقم الهاتف على أرقام ومسافات و'+' و'-' فقط.",
+  "validation.phone_digit_count": "يجب أن يحتوي رقم الهاتف على عدد أرقام بين {min_digits} و{max_digits}.",
+  "validation.email_too_long": "يجب ألا يتجاوز البريد الإلكتروني 150 حرفًا.",
+  "validation.email_invalid": "صيغة البريد الإلكتروني غير صحيحة.",
+  "validation.not_a_decimal": "يجب إدخال {field} كرقم عادي (وليس رقمًا عشريًا من نوع float) لتجنب أخطاء التقريب.",
+  "validation.not_a_number": "{field} ليس رقمًا صحيحًا.",
+  "validation.amount_not_positive": "يجب أن يكون {field} أكبر من صفر.",
+  "validation.too_many_decimals": "يجب ألا يحتوي {field} على أكثر من رقمين عشريين.",
+  "validation.percentage_out_of_range": "يجب أن تكون قيمة {field} بين 0 و100.",
+
+  "patients.not_found": "لا يوجد مريض بالمعرّف {patient_id}.",
+  "patients.delete_blocked_has_transactions": "هذا المريض لديه سجل معاملات مالية ولا يمكن حذفه. يرجى إلغاء تفعيل المريض بدلاً من ذلك.",
+
+  "doctors.not_found": "لا يوجد طبيب بالمعرّف {doctor_id}.",
+  "doctors.inactive_cannot_transact": "الطبيب '{doctor_name}' غير نشط ولا يمكن تسجيل معاملة جديدة له.",
+
+  "transactions.not_found": "لا توجد معاملة بالمعرّف {transaction_id}.",
+  "transactions.date_range_incomplete": "يجب تحديد تاريخ البداية وتاريخ النهاية معًا، أو عدم تحديد أي منهما.",
+
+  "dates.end_before_start": "لا يمكن أن يكون تاريخ النهاية قبل تاريخ البداية.",
+
+  "permissions.actions.create_patient": "إنشاء مريض جديد",
+  "permissions.actions.edit_patient": "تعديل بيانات مريض",
+  "permissions.actions.delete_patient": "حذف مريض",
+  "permissions.actions.deactivate_patient": "إلغاء تفعيل أو إعادة تفعيل مريض",
+  "permissions.actions.attach_file": "إرفاق ملف بمريض",
+  "permissions.actions.record_transaction": "تسجيل معاملة مالية",
+  "permissions.actions.view_reports": "عرض التقارير المالية",
+  "permissions.actions.manage_doctors": "إدارة بيانات الأطباء",
+  "permissions.actions.manage_users": "إدارة حسابات المستخدمين",
+  "permissions.denied": "ليس لديك صلاحية {action}.",
+  "permissions.user_deactivated": "المستخدم '{username}' غير مُفعّل ولا يمكنه تنفيذ هذا الإجراء."
+}

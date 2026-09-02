@@ -28,8 +28,11 @@ from sqlalchemy.orm import Session
 from data.models.doctor import Doctor
 from data.models.patient import Patient
 from data.models.transaction import Transaction
+from data.models.user import User
+from i18n import t
 from logic.dates import day_bounds_utc
 from logic.errors import NotFoundError, ValidationError
+from logic.permissions import Permission, require_permission
 from logic.validation import validate_amount, validate_optional_text, validate_percentage
 
 TWO_PLACES = Decimal("0.01")
@@ -50,8 +53,8 @@ def calculate_split(total_amount: Decimal, doctor_percentage: Decimal) -> tuple[
     absorbing the (at most $0.01) rounding remainder. This mirrors the
     convention already used in data/seed.py.
     """
-    total_amount = validate_amount(total_amount, "Total amount")
-    doctor_percentage = validate_percentage(doctor_percentage, "Doctor percentage")
+    total_amount = validate_amount(total_amount, "fields.total_amount")
+    doctor_percentage = validate_percentage(doctor_percentage, "fields.standard_percentage")
 
     doctor_amount = (total_amount * doctor_percentage / Decimal(100)).quantize(
         TWO_PLACES, rounding=ROUND_HALF_UP
@@ -66,34 +69,36 @@ def record_transaction(
     patient_id: uuid.UUID,
     doctor_id: uuid.UUID,
     total_amount: Decimal,
-    recorded_by: uuid.UUID,
+    acting_user: User,
     description: str | None = None,
 ) -> Transaction:
     """
     Record a new transaction (task plan 2.2): validates input, snapshots
     the doctor's CURRENT standard_percentage onto the transaction (so a
     later rate change never alters this record — see Transaction's
-    docstring), computes the split, saves, and returns it.
+    docstring), computes the split, saves, and returns it. Requires the
+    RECORD_TRANSACTION permission (task plan 2.4 — day-to-day entry,
+    both roles have it; see logic/permissions.py).
 
     Requires the patient to exist (any patient — active or deactivated;
     deactivation doesn't erase the ability to bill an already-scheduled
     service) and the doctor to exist and be active (an inactive doctor
     shouldn't be receiving new transactions).
     """
+    require_permission(acting_user, Permission.RECORD_TRANSACTION)
+
     patient = session.get(Patient, patient_id)
     if patient is None:
-        raise NotFoundError(f"No patient found with id {patient_id}.")
+        raise NotFoundError(t("patients.not_found", patient_id=patient_id))
 
     doctor = session.get(Doctor, doctor_id)
     if doctor is None:
-        raise NotFoundError(f"No doctor found with id {doctor_id}.")
+        raise NotFoundError(t("doctors.not_found", doctor_id=doctor_id))
     if not doctor.active:
-        raise ValidationError(
-            f"Doctor '{doctor.name}' is not active and cannot be assigned a new transaction."
-        )
+        raise ValidationError(t("doctors.inactive_cannot_transact", doctor_name=doctor.name))
 
-    clean_amount = validate_amount(total_amount, "Total amount")
-    clean_description = validate_optional_text(description, "Description", max_length=5000)
+    clean_amount = validate_amount(total_amount, "fields.total_amount")
+    clean_description = validate_optional_text(description, "fields.description", max_length=5000)
 
     doctor_percentage = doctor.standard_percentage
     center_percentage = Decimal(100) - doctor_percentage
@@ -102,7 +107,7 @@ def record_transaction(
     transaction = Transaction(
         patient_id=patient_id,
         doctor_id=doctor_id,
-        recorded_by=recorded_by,
+        recorded_by=acting_user.id,
         total_amount=clean_amount,
         doctor_percentage=doctor_percentage,
         center_percentage=center_percentage,
@@ -123,7 +128,7 @@ def get_transaction(session: Session, transaction_id: uuid.UUID) -> Transaction:
     """Fetch a single transaction by id, or raise NotFoundError."""
     transaction = session.get(Transaction, transaction_id)
     if transaction is None:
-        raise NotFoundError(f"No transaction found with id {transaction_id}.")
+        raise NotFoundError(t("transactions.not_found", transaction_id=transaction_id))
     return transaction
 
 
@@ -150,7 +155,7 @@ def list_transactions(
         start_dt, end_dt = day_bounds_utc(start_date, end_date)
         q = q.filter(Transaction.created_at >= start_dt, Transaction.created_at <= end_dt)
     elif start_date is not None or end_date is not None:
-        raise ValidationError("start_date and end_date must both be provided, or neither.")
+        raise ValidationError(t("transactions.date_range_incomplete"))
     return q.order_by(Transaction.created_at.desc()).all()
 
 

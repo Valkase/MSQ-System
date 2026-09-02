@@ -47,3 +47,49 @@ def session():
 def admin_id() -> uuid.UUID:
     """A stand-in 'changed_by' user id — no actual User row is needed for these tests."""
     return uuid.uuid4()
+
+
+def _make_user(session, *, username: str, role: str, active: bool = True):
+    from data.models.user import User
+
+    user = User(username=username, password_hash="x", role=role, active=active)
+    session.add(user)
+    session.flush()  # populate user.id
+    return user
+
+
+@pytest.fixture()
+def admin_user(session):
+    """A persisted, active admin User — for logic functions that take `acting_user`."""
+    from data.models.user import ROLE_ADMIN
+
+    return _make_user(session, username="admin1", role=ROLE_ADMIN)
+
+
+@pytest.fixture()
+def receptionist_user(session):
+    """A persisted, active receptionist User."""
+    from data.models.user import ROLE_RECEPTIONIST
+
+    return _make_user(session, username="reception1", role=ROLE_RECEPTIONIST)
+
+
+@pytest.fixture()
+def inactive_receptionist_user(session):
+    """A persisted but deactivated receptionist User — should have zero permissions."""
+    from data.models.user import ROLE_RECEPTIONIST
+
+    return _make_user(session, username="reception_deactivated", role=ROLE_RECEPTIONIST, active=False)
+
+
+@pytest.fixture(autouse=True)
+def _reset_locale():
+    """
+    i18n's active locale is a process-wide global (see i18n/translator.py).
+    Reset it to the default after every test so a test that switches to
+    Arabic can never leak into the next test, regardless of test order.
+    """
+    from i18n import DEFAULT_LOCALE, set_locale
+
+    yield
+    set_locale(DEFAULT_LOCALE)

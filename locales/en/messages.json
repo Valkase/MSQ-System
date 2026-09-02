@@ -1,0 +1,47 @@
+{
+  "fields.full_name": "Full name",
+  "fields.phone": "Phone number",
+  "fields.email": "Email",
+  "fields.address": "Address",
+  "fields.file_path": "File path",
+  "fields.description": "Description",
+  "fields.doctor_name": "Doctor name",
+  "fields.standard_percentage": "Standard percentage",
+  "fields.total_amount": "Total amount",
+
+  "validation.required": "{field} is required.",
+  "validation.max_length": "{field} must be {max_length} characters or fewer.",
+  "validation.phone_required": "Phone number is required.",
+  "validation.phone_invalid_chars": "Phone number may only contain digits, spaces, '+' and '-'.",
+  "validation.phone_digit_count": "Phone number must contain between {min_digits} and {max_digits} digits.",
+  "validation.email_too_long": "Email must be 150 characters or fewer.",
+  "validation.email_invalid": "Email address is not a valid format.",
+  "validation.not_a_decimal": "{field} must be entered as a plain number (not a float) to avoid rounding error.",
+  "validation.not_a_number": "{field} is not a valid number.",
+  "validation.amount_not_positive": "{field} must be greater than zero.",
+  "validation.too_many_decimals": "{field} may have at most 2 decimal places.",
+  "validation.percentage_out_of_range": "{field} must be between 0 and 100.",
+
+  "patients.not_found": "No patient found with id {patient_id}.",
+  "patients.delete_blocked_has_transactions": "This patient has transaction history and cannot be deleted. Deactivate the patient instead.",
+
+  "doctors.not_found": "No doctor found with id {doctor_id}.",
+  "doctors.inactive_cannot_transact": "Doctor '{doctor_name}' is not active and cannot be assigned a new transaction.",
+
+  "transactions.not_found": "No transaction found with id {transaction_id}.",
+  "transactions.date_range_incomplete": "Start date and end date must both be provided, or neither.",
+
+  "dates.end_before_start": "End date cannot be before start date.",
+
+  "permissions.actions.create_patient": "create a patient",
+  "permissions.actions.edit_patient": "edit a patient",
+  "permissions.actions.delete_patient": "delete a patient",
+  "permissions.actions.deactivate_patient": "deactivate or reactivate a patient",
+  "permissions.actions.attach_file": "attach a file to a patient",
+  "permissions.actions.record_transaction": "record a transaction",
+  "permissions.actions.view_reports": "view financial reports",
+  "permissions.actions.manage_doctors": "manage doctors",
+  "permissions.actions.manage_users": "manage user accounts",
+  "permissions.denied": "You do not have permission to {action}.",
+  "permissions.user_deactivated": "User '{username}' is deactivated and cannot perform this action."
+}

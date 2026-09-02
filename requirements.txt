@@ -4,3 +4,4 @@ argon2-cffi
 requests
 python-dotenv
 pytest
+babel
