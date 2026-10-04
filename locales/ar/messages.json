@@ -186,5 +186,21 @@
 
   "gui.change_password": "تغيير كلمة المرور",
   "gui.change_password.title": "تغيير كلمة المرور الخاصة بي",
-  "gui.change_password.done": "تم تغيير كلمة المرور."
+  "gui.change_password.done": "تم تغيير كلمة المرور.",
+    "gui.reports.from": "من",
+  "gui.reports.to": "إلى",
+  "gui.reports.run": "عرض التقرير",
+  "gui.reports.preset_today": "اليوم",
+  "gui.reports.preset_month": "هذا الشهر",
+  "gui.reports.preset_30": "آخر 30 يومًا",
+  "gui.reports.range_shown": "العرض من {start} إلى {end}",
+  "gui.reports.empty": "لا توجد معاملات في هذه الفترة.",
+  "gui.reports.summary_title": "إجمالي المركز",
+  "gui.reports.doctors_title": "الإجماليات لكل طبيب",
+  "gui.reports.transactions": "عدد المعاملات",
+  "gui.reports.total_billed": "إجمالي المبالغ",
+  "gui.reports.doctors_share": "حصة الأطباء",
+  "gui.reports.center_share": "حصة المركز",
+  "gui.reports.col_doctor": "الطبيب",
+  "gui.reports.col_count": "عدد المعاملات"
 }

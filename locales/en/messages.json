@@ -186,5 +186,21 @@
 
   "gui.change_password": "Change password",
   "gui.change_password.title": "Change my password",
-  "gui.change_password.done": "Your password was changed."
+  "gui.change_password.done": "Your password was changed.",
+    "gui.reports.from": "From",
+  "gui.reports.to": "To",
+  "gui.reports.run": "Show report",
+  "gui.reports.preset_today": "Today",
+  "gui.reports.preset_month": "This month",
+  "gui.reports.preset_30": "Last 30 days",
+  "gui.reports.range_shown": "Showing {start} – {end}",
+  "gui.reports.empty": "No transactions in this period.",
+  "gui.reports.summary_title": "Center totals",
+  "gui.reports.doctors_title": "Totals per doctor",
+  "gui.reports.transactions": "Transactions",
+  "gui.reports.total_billed": "Total billed",
+  "gui.reports.doctors_share": "Doctors' share",
+  "gui.reports.center_share": "Center's share",
+  "gui.reports.col_doctor": "Doctor",
+  "gui.reports.col_count": "Transactions"
 }

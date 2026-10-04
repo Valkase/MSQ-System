@@ -32,6 +32,7 @@ from gui.password_dialog import PasswordDialog
 from gui.users_page import UsersPage
 from logic import auth
 from logic.errors import AccountLockedError, AuthenticationError
+from gui.reports_page import ReportsPage
 
 # (message key for the label, permission needed to see it — None = everyone logged in)
 _NAV = [
@@ -126,6 +127,8 @@ class MainWindow(QMainWindow):
             return DoctorsPage(self.controller)
         if key == "gui.nav.users":
             return UsersPage(self.controller)
+        if key == "gui.nav.reports":
+            return ReportsPage(self.controller)
         return PlaceholderPage(t(key))  # swapped out as each screen is built
 
     def _check_idle(self) -> None:
