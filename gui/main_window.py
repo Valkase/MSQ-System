@@ -82,6 +82,9 @@ class MainWindow(QMainWindow):
                 continue
             self.nav.addItem(t(key))
             self.pages.addWidget(self._build_page(key))
+       
+        self.nav.currentRowChanged.connect(self.pages.setCurrentIndex)
+        self.nav.setCurrentRow(max(0, min(start_page, self.nav.count() - 1)))
 
         body = QHBoxLayout()
         body.addWidget(self.nav)
