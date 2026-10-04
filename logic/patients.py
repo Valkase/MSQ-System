@@ -305,3 +305,16 @@ def list_attachments(session: Session, patient_id: uuid.UUID) -> list[Attachment
         .order_by(Attachment.created_at.desc())
         .all()
     )
+
+def list_recent_patients(
+    session: Session, *, include_inactive: bool = False, limit: int = 100
+) -> list[Patient]:
+    """
+    Most recently registered patients first — what the patient list shows
+    when the search box is empty (search_patients returns [] for an empty
+    query by design). Capped so the list stays fast as history grows.
+    """
+    q = session.query(Patient)
+    if not include_inactive:
+        q = q.filter(Patient.active.is_(True))
+    return q.order_by(Patient.created_at.desc()).limit(limit).all()

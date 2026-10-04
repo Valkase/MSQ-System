@@ -49,6 +49,16 @@ class AppSession:
         self._user_id = None
         self._last_activity = None
 
+    def touch(self, *, now: datetime | None = None) -> None:
+        """
+        Record user activity without hitting the DB (the GUI calls this on
+        clicks/keypresses). A session that has ALREADY idled out is not
+        revived by a late click — it stays expired until the user logs in again.
+        """
+        now = now or utcnow()
+        if self._user_id is not None and not self._is_idle_expired(now):
+            self._last_activity = now
+
     def _is_idle_expired(self, now: datetime) -> bool:
         if self.idle_timeout is None or self._last_activity is None:
             return False

@@ -54,3 +54,10 @@ class AccountLockedError(AuthenticationError):
     def __init__(self, message: str, *, locked_until):
         super().__init__(message)
         self.locked_until = locked_until
+
+class AttachmentNotFoundError(NotFoundError):
+    """The attachment's stored file path doesn't resolve (moved, deleted, or attached from another PC)."""
+
+
+class AttachmentOpenError(LogicError):
+    """The file exists but the operating system could not open it."""

@@ -287,3 +287,15 @@ def test_list_users_is_admin_only(session, admin_user, receptionist_user):
     assert len(auth.list_users(session, acting_user=admin_user)) >= 2
     with pytest.raises(PermissionDeniedError):
         auth.list_users(session, acting_user=receptionist_user)
+
+
+
+def test_touch_extends_a_live_session_but_never_revives_an_expired_one(session, admin_user):
+    user = _create(session, admin_user)
+    current_session.start(user, now=T0)
+
+    current_session.touch(now=T0 + timedelta(minutes=25))  # inside the window: clock resets
+    assert current_session.is_logged_in(now=T0 + timedelta(minutes=50))
+
+    current_session.touch(now=T0 + timedelta(minutes=120))  # already expired: ignored
+    assert not current_session.is_logged_in(now=T0 + timedelta(minutes=121))
