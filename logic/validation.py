@@ -150,11 +150,10 @@ def validate_password(password: str | None) -> str:
         raise ValidationError(t("validation.password_too_long", max_length=PASSWORD_MAX_LENGTH))
     return password
 
-
 def validate_role(role: str | None) -> str:
     """Role must be one of the two confirmed roles (design doc Section 5.2 / 9)."""
     from data.models.user import VALID_ROLES
 
     if role not in VALID_ROLES:
-        raise ValidationError(t("validation.invalid_role", valid_roles=", ".join(VALID_ROLES)))
+        raise ValidationError(t("validation.role_invalid", roles=", ".join(VALID_ROLES)))
     return role

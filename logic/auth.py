@@ -42,7 +42,7 @@ from logic.errors import (
     ValidationError,
 )
 from logic.permissions import Permission, require_permission
-from logic.validation import validate_password, validate_required_text
+from logic.validation import validate_password, validate_required_text, validate_role
 
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION = timedelta(minutes=15)
@@ -112,9 +112,10 @@ def _record_failed_attempt(
     """Count a failure, lock the account if the limit is reached, commit, and ALWAYS raise."""
     user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
     if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
-        user.locked_until = now + LOCKOUT_DURATION
+        locked_until = now + LOCKOUT_DURATION  # local var: don't re-read the expired attribute
+        user.locked_until = locked_until
         _commit(session)
-        raise _locked_error(user.locked_until, now)
+        raise _locked_error(locked_until, now)
     _commit(session)
     raise AuthenticationError(t(invalid_key))
 
@@ -203,6 +204,7 @@ def create_user(
 
     clean_username = validate_required_text(username, "fields.username", max_length=50)
     clean_password = validate_password(password)
+    clean_role = validate_role(role)
     if role not in VALID_ROLES:
         raise ValidationError(t("validation.role_invalid", roles=", ".join(VALID_ROLES)))
     if _find_by_username(session, clean_username) is not None:
@@ -211,7 +213,7 @@ def create_user(
     user = User(
         username=clean_username,
         password_hash=_hasher.hash(clean_password),
-        role=role,
+        role=clean_role,
         active=True,
     )
     session.add(user)
