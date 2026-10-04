@@ -93,3 +93,18 @@ def _reset_locale():
 
     yield
     set_locale(DEFAULT_LOCALE)
+
+
+@pytest.fixture(autouse=True)
+def _reset_app_session():
+    """
+    logic.app_session.current_session is process-wide state (like the i18n
+    locale). Make sure a login in one test never leaks into the next.
+    """
+    from logic.app_session import DEFAULT_IDLE_TIMEOUT, current_session
+
+    current_session.end()
+    current_session.idle_timeout = DEFAULT_IDLE_TIMEOUT
+    yield
+    current_session.end()
+    current_session.idle_timeout = DEFAULT_IDLE_TIMEOUT

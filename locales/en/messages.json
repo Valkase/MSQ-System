@@ -8,6 +8,9 @@
   "fields.doctor_name": "Doctor name",
   "fields.standard_percentage": "Standard percentage",
   "fields.total_amount": "Total amount",
+  "fields.username": "Username",
+  "fields.password": "Password",
+  "fields.role": "Role",
 
   "validation.required": "{field} is required.",
   "validation.max_length": "{field} must be {max_length} characters or fewer.",
@@ -21,6 +24,10 @@
   "validation.amount_not_positive": "{field} must be greater than zero.",
   "validation.too_many_decimals": "{field} may have at most 2 decimal places.",
   "validation.percentage_out_of_range": "{field} must be between 0 and 100.",
+  "validation.password_too_short": "Password must be at least {min_length} characters.",
+  "validation.password_too_long": "Password must be {max_length} characters or fewer.",
+  "validation.password_unchanged": "The new password must be different from the current password.",
+  "validation.role_invalid": "Role must be one of: {roles}.",
 
   "patients.not_found": "No patient found with id {patient_id}.",
   "patients.delete_blocked_has_transactions": "This patient has transaction history and cannot be deleted. Deactivate the patient instead.",
@@ -32,6 +39,17 @@
   "transactions.date_range_incomplete": "Start date and end date must both be provided, or neither.",
 
   "dates.end_before_start": "End date cannot be before start date.",
+
+  "auth.invalid_credentials": "Invalid username or password.",
+  "auth.account_locked": "Too many failed attempts. This account is locked; try again in {minutes} minute(s).",
+  "auth.account_deactivated": "This account is deactivated. Please contact an administrator.",
+  "auth.wrong_current_password": "The current password is incorrect.",
+  "auth.not_logged_in": "You must log in to continue.",
+  "auth.session_expired": "Your session expired due to inactivity. Please log in again.",
+  "auth.username_taken": "The username '{username}' is already taken.",
+
+  "users.not_found": "No user found with id {user_id}.",
+  "users.cannot_deactivate_self": "You cannot deactivate your own account.",
 
   "permissions.actions.create_patient": "create a patient",
   "permissions.actions.edit_patient": "edit a patient",

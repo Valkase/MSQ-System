@@ -8,6 +8,9 @@
   "fields.doctor_name": "اسم الطبيب",
   "fields.standard_percentage": "النسبة القياسية",
   "fields.total_amount": "المبلغ الإجمالي",
+  "fields.username": "اسم المستخدم",
+  "fields.password": "كلمة المرور",
+  "fields.role": "الدور",
 
   "validation.required": "{field} مطلوب.",
   "validation.max_length": "يجب ألا يتجاوز {field} {max_length} حرفًا.",
@@ -21,6 +24,10 @@
   "validation.amount_not_positive": "يجب أن يكون {field} أكبر من صفر.",
   "validation.too_many_decimals": "يجب ألا يحتوي {field} على أكثر من رقمين عشريين.",
   "validation.percentage_out_of_range": "يجب أن تكون قيمة {field} بين 0 و100.",
+  "validation.password_too_short": "يجب ألا تقل كلمة المرور عن {min_length} أحرف.",
+  "validation.password_too_long": "يجب ألا تتجاوز كلمة المرور {max_length} حرفًا.",
+  "validation.password_unchanged": "يجب أن تختلف كلمة المرور الجديدة عن كلمة المرور الحالية.",
+  "validation.role_invalid": "يجب أن يكون الدور أحد القيم التالية: {roles}.",
 
   "patients.not_found": "لا يوجد مريض بالمعرّف {patient_id}.",
   "patients.delete_blocked_has_transactions": "هذا المريض لديه سجل معاملات مالية ولا يمكن حذفه. يرجى إلغاء تفعيل المريض بدلاً من ذلك.",
@@ -32,6 +39,17 @@
   "transactions.date_range_incomplete": "يجب تحديد تاريخ البداية وتاريخ النهاية معًا، أو عدم تحديد أي منهما.",
 
   "dates.end_before_start": "لا يمكن أن يكون تاريخ النهاية قبل تاريخ البداية.",
+
+  "auth.invalid_credentials": "اسم المستخدم أو كلمة المرور غير صحيحة.",
+  "auth.account_locked": "تم قفل الحساب بسبب كثرة المحاولات الفاشلة. حاول مرة أخرى بعد {minutes} دقيقة.",
+  "auth.account_deactivated": "هذا الحساب غير مُفعّل. يرجى التواصل مع المسؤول.",
+  "auth.wrong_current_password": "كلمة المرور الحالية غير صحيحة.",
+  "auth.not_logged_in": "يجب تسجيل الدخول للمتابعة.",
+  "auth.session_expired": "انتهت الجلسة بسبب عدم النشاط. يرجى تسجيل الدخول مرة أخرى.",
+  "auth.username_taken": "اسم المستخدم '{username}' مستخدم بالفعل.",
+
+  "users.not_found": "لا يوجد مستخدم بالمعرّف {user_id}.",
+  "users.cannot_deactivate_self": "لا يمكنك إلغاء تفعيل حسابك الخاص.",
 
   "permissions.actions.create_patient": "إنشاء مريض جديد",
   "permissions.actions.edit_patient": "تعديل بيانات مريض",

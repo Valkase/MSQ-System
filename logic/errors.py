@@ -36,3 +36,43 @@ class PatientHasTransactionsError(LogicError):
 
 class DuplicateError(LogicError):
     """A uniqueness constraint would be violated (e.g. username already taken)."""
+
+
+class AuthenticationError(LogicError):
+    """
+    Login failed — invalid username/password, or the account is
+    deactivated (logic/auth.py's login()). Deliberately a single generic
+    error type covering all failure cases: the message shown to the user
+    never reveals which specific case occurred (unknown username vs.
+    wrong password vs. deactivated account), so login failures can't be
+    used to enumerate valid usernames or account status.
+    """
+
+class AuthenticationLockedError(AuthenticationError):
+    """
+    Login was attempted against an account that is currently locked out
+    due to too many recent failed attempts (logic/auth.py's login() and
+    User.locked_until). Subclasses AuthenticationError so any caller
+    that only catches the parent still handles this safely, but the GUI
+    can catch this specifically to show a "locked, try again in N
+    minutes" message instead of the generic invalid-credentials one.
+    """
+
+
+
+class AuthenticationError(LogicError):
+    """
+    Login failed, or the caller isn't (or is no longer) logged in: bad
+    credentials, deactivated account, expired/missing session.
+    """
+
+
+class AccountLockedError(AuthenticationError):
+    """
+    Too many failed login attempts. `locked_until` (timezone-aware UTC) lets
+    the GUI show when the user can try again.
+    """
+
+    def __init__(self, message: str, *, locked_until):
+        super().__init__(message)
+        self.locked_until = locked_until

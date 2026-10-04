@@ -133,3 +133,28 @@ def validate_percentage(value, field_key: str = "fields.standard_percentage") ->
     if -pct.as_tuple().exponent > 2:
         raise ValidationError(t("validation.too_many_decimals", field=field_name))
     return pct
+
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 128
+
+
+def validate_password(password: str | None) -> str:
+    """
+    Password policy for new/changed passwords. Deliberately NOT stripped —
+    whitespace is a legitimate part of a password. Min length matches
+    scripts/create_first_admin.py. Never echoes the password in the error.
+    """
+    if not isinstance(password, str) or len(password) < PASSWORD_MIN_LENGTH:
+        raise ValidationError(t("validation.password_too_short", min_length=PASSWORD_MIN_LENGTH))
+    if len(password) > PASSWORD_MAX_LENGTH:
+        raise ValidationError(t("validation.password_too_long", max_length=PASSWORD_MAX_LENGTH))
+    return password
+
+
+def validate_role(role: str | None) -> str:
+    """Role must be one of the two confirmed roles (design doc Section 5.2 / 9)."""
+    from data.models.user import VALID_ROLES
+
+    if role not in VALID_ROLES:
+        raise ValidationError(t("validation.invalid_role", valid_roles=", ".join(VALID_ROLES)))
+    return role
