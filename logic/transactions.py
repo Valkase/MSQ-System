@@ -35,7 +35,9 @@ from logic.permissions import Permission, require_permission
 from logic.validation import validate_amount, validate_optional_text, validate_percentage
 from dataclasses import dataclass
 from datetime import date, datetime
+from sqlalchemy import func
 
+from data.models.adjustment import Adjustment
 
 TWO_PLACES = Decimal("0.01")
 
@@ -175,6 +177,11 @@ class TransactionRow:
     doctor_amount: Decimal
     center_amount: Decimal
     description: str | None
+    # Sum of all adjustments to this transaction (zero if none). The net
+    # position is total_amount + adjusted_total, and so on.
+    adjusted_total: Decimal = Decimal("0.00")
+    adjusted_doctor: Decimal = Decimal("0.00")
+    adjusted_center: Decimal = Decimal("0.00")
 
 
 def list_transaction_rows(
@@ -187,9 +194,9 @@ def list_transaction_rows(
     """
     Newest-first transactions with patient and doctor names joined in, for
     the transactions screen (all patients) and the patient billing history
-    (one patient). Requires VIEW_REPORTS (task plan 2.4): it's financial
-    data, and this keeps a deactivated account from reading it. Returns
-    frozen dataclasses, safe to use after the DB session closes.
+    (one patient). Each row also carries the summed adjustments to it.
+    Requires VIEW_REPORTS (task plan 2.4). Returns frozen dataclasses, safe
+    to use after the DB session closes.
     """
     require_permission(acting_user, Permission.VIEW_REPORTS)
 
@@ -202,22 +209,45 @@ def list_transaction_rows(
         q = q.filter(Transaction.patient_id == patient_id)
     rows = q.order_by(Transaction.created_at.desc()).limit(limit).all()
 
-    return [
-        TransactionRow(
-            id=txn.id,
-            created_at=txn.created_at,
-            patient_id=txn.patient_id,
-            patient_name=patient_name,
-            doctor_id=txn.doctor_id,
-            doctor_name=doctor_name,
-            total_amount=txn.total_amount,
-            doctor_percentage=txn.doctor_percentage,
-            doctor_amount=txn.doctor_amount,
-            center_amount=txn.center_amount,
-            description=txn.description,
+    adjustments_by_txn: dict = {}
+    ids = [txn.id for txn, _, _ in rows]
+    if ids:
+        adjustments_by_txn = {
+            r[0]: (r[1], r[2], r[3])
+            for r in session.query(
+                Adjustment.transaction_id,
+                func.sum(Adjustment.total_amount),
+                func.sum(Adjustment.doctor_amount),
+                func.sum(Adjustment.center_amount),
+            )
+            .filter(Adjustment.transaction_id.in_(ids))
+            .group_by(Adjustment.transaction_id)
+            .all()
+        }
+
+    zero = Decimal("0.00")
+    result = []
+    for txn, patient_name, doctor_name in rows:
+        adj_total, adj_doctor, adj_center = adjustments_by_txn.get(txn.id, (zero, zero, zero))
+        result.append(
+            TransactionRow(
+                id=txn.id,
+                created_at=txn.created_at,
+                patient_id=txn.patient_id,
+                patient_name=patient_name,
+                doctor_id=txn.doctor_id,
+                doctor_name=doctor_name,
+                total_amount=txn.total_amount,
+                doctor_percentage=txn.doctor_percentage,
+                doctor_amount=txn.doctor_amount,
+                center_amount=txn.center_amount,
+                description=txn.description,
+                adjusted_total=adj_total,
+                adjusted_doctor=adj_doctor,
+                adjusted_center=adj_center,
+            )
         )
-        for txn, patient_name, doctor_name in rows
-    ]
+    return result
 # ---------------------------------------------------------------------------
 # Adjustments / corrections — OPEN DESIGN ITEM, not built.
 # ---------------------------------------------------------------------------

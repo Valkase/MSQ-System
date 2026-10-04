@@ -202,5 +202,30 @@
   "gui.reports.doctors_share": "حصة الأطباء",
   "gui.reports.center_share": "حصة المركز",
   "gui.reports.col_doctor": "الطبيب",
-  "gui.reports.col_count": "عدد المعاملات"
+  "gui.reports.col_count": "عدد المعاملات",
+    "fields.adjustment_amount": "مبلغ التعديل",
+  "fields.reason": "السبب",
+  "validation.amount_zero": "يجب ألا يكون {field} صفرًا.",
+  "adjustments.exceeds_net": "هذا التعديل سيجعل الصافي سالبًا (الصافي الحالي: {net}).",
+  "permissions.actions.adjust_transaction": "تعديل معاملة مالية",
+
+  "gui.nav.adjustments": "التعديلات",
+  "gui.transactions.net_suffix": "(الصافي {amount})",
+
+  "gui.adjustments.new_title": "تعديل معاملة",
+  "gui.adjustments.note": "لا تُعدَّل المعاملة المحفوظة أبدًا. أدخل مبلغًا سالبًا للتخفيض أو موجبًا للزيادة، أو استخدم «إلغاء المعاملة بالكامل» لعكسها. لتصحيح مريض أو طبيب خاطئ، ألغِ المعاملة وسجّل معاملة جديدة.",
+  "gui.adjustments.transaction": "المعاملة",
+  "gui.adjustments.pick_patient": "ابحث عن مريض واخترته لعرض معاملاته.",
+  "gui.adjustments.select_transaction": "اختر المعاملة المراد تعديلها.",
+  "gui.adjustments.no_transactions": "لا توجد معاملات لهذا المريض.",
+  "gui.adjustments.select_transaction_first": "اختر معاملة أولًا.",
+  "gui.adjustments.void": "إلغاء المعاملة بالكامل",
+  "gui.adjustments.preview_title": "النتيجة بعد التعديل",
+  "gui.adjustments.preview": "الصافي الجديد: {net}\nالطبيب: {doctor}\nالمركز: {center}",
+  "gui.adjustments.save": "تسجيل التعديل",
+  "gui.adjustments.confirm": "تعديل معاملة المريض {patient} لدى {doctor} بمقدار {change}؟\n\nالصافي الجديد: {net}\nالطبيب: {doctor_amount}\nالمركز: {center_amount}\nالسبب: {reason}\n\nلا يمكن تعديل التعديل أو حذفه بعد الحفظ.",
+  "gui.adjustments.recorded": "تم تسجيل التعديل.",
+  "gui.adjustments.recent": "أحدث التعديلات",
+  "gui.adjustments.col_change": "التغيير",
+  "gui.adjustments.col_by": "سُجّل بواسطة"
 }

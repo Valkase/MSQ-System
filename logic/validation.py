@@ -161,3 +161,14 @@ def validate_role(role: str | None) -> str:
     if role not in VALID_ROLES:
         raise ValidationError(t("validation.role_invalid", roles=", ".join(VALID_ROLES)))
     return role
+
+
+def validate_signed_amount(value, field_key: str = "fields.adjustment_amount") -> Decimal:
+    """A signed monetary change: Decimal, never zero, at most 2 decimal places."""
+    amount = _to_decimal(value, field_key)
+    field_name = t(field_key)
+    if amount == 0:
+        raise ValidationError(t("validation.amount_zero", field=field_name))
+    if -amount.as_tuple().exponent > 2:
+        raise ValidationError(t("validation.too_many_decimals", field=field_name))
+    return amount   

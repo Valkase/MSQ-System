@@ -3,9 +3,12 @@ Financial reporting (task plan 2.2's last two items): queries filterable
 by an arbitrary custom date range, plus per-doctor and center total
 reports for that range. Read-only — nothing here writes to the database.
 
-Aggregation is done via SQL SUM (session.query(func.sum(...))), not by
-pulling every Transaction row into Python and adding Decimals in a loop
-— matters once a clinic has years of transaction history.
+Aggregation is done via SQL SUM, not by pulling every row into Python.
+
+Adjustments (logic/adjustments.py) are included: an adjustment counts in the
+period in which it was RECORDED, never the original transaction's period, so
+a past period's totals never change after the fact. transaction_count counts
+transactions only (an adjustment isn't a new transaction).
 """
 
 import uuid
@@ -16,6 +19,7 @@ from decimal import Decimal
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from data.models.adjustment import Adjustment
 from data.models.doctor import Doctor
 from data.models.transaction import Transaction
 from data.models.user import User
@@ -44,6 +48,23 @@ class CenterTotals:
 _ZERO = Decimal("0.00")
 
 
+def _adjustment_sums_by_doctor(session: Session, start_dt, end_dt) -> dict:
+    rows = (
+        session.query(
+            Transaction.doctor_id,
+            func.sum(Adjustment.total_amount),
+            func.sum(Adjustment.doctor_amount),
+            func.sum(Adjustment.center_amount),
+        )
+        .select_from(Adjustment)
+        .join(Transaction, Transaction.id == Adjustment.transaction_id)
+        .filter(Adjustment.created_at >= start_dt, Adjustment.created_at <= end_dt)
+        .group_by(Transaction.doctor_id)
+        .all()
+    )
+    return {r[0]: (r[1], r[2], r[3]) for r in rows}
+
+
 def doctor_totals_for_range(
     session: Session,
     *,
@@ -55,15 +76,11 @@ def doctor_totals_for_range(
     """
     Per-doctor totals (task plan 2.2) for an inclusive [start_date,
     end_date] range: transaction count, total billed, and each doctor's
-    share vs. the center's share of that doctor's transactions. Requires
-    VIEW_REPORTS (task plan 2.4) — mainly guards against a deactivated
-    account pulling financial data, since both active roles hold this
-    permission today.
+    share vs. the center's share, net of adjustments recorded in the range.
+    Requires VIEW_REPORTS (task plan 2.4).
 
     Uses a LEFT JOIN from Doctor so a doctor with zero transactions in
-    the range still appears with zeroed totals, rather than silently
-    disappearing from the report — useful for spotting a doctor who
-    hasn't seen any patients in a given period.
+    the range still appears with zeroed totals.
     """
     require_permission(acting_user, Permission.VIEW_REPORTS)
 
@@ -90,17 +107,23 @@ def doctor_totals_for_range(
     if not include_inactive_doctors:
         q = q.filter(Doctor.active.is_(True))
 
-    return [
-        DoctorTotals(
-            doctor_id=row[0],
-            doctor_name=row[1],
-            transaction_count=row[2],
-            total_amount=row[3],
-            doctor_amount=row[4],
-            center_amount=row[5],
+    adjustments = _adjustment_sums_by_doctor(session, start_dt, end_dt)
+    zero = (_ZERO, _ZERO, _ZERO)
+
+    results = []
+    for row in q.all():
+        adj_total, adj_doctor, adj_center = adjustments.get(row[0], zero)
+        results.append(
+            DoctorTotals(
+                doctor_id=row[0],
+                doctor_name=row[1],
+                transaction_count=row[2],
+                total_amount=row[3] + adj_total,
+                doctor_amount=row[4] + adj_doctor,
+                center_amount=row[5] + adj_center,
+            )
         )
-        for row in q.all()
-    ]
+    return results
 
 
 def center_totals_for_range(
@@ -108,8 +131,8 @@ def center_totals_for_range(
 ) -> CenterTotals:
     """
     Clinic-wide totals (task plan 2.2) for an inclusive [start_date,
-    end_date] range, across all doctors combined. Requires VIEW_REPORTS
-    (task plan 2.4).
+    end_date] range, across all doctors combined, net of adjustments
+    recorded in the range. Requires VIEW_REPORTS (task plan 2.4).
     """
     require_permission(acting_user, Permission.VIEW_REPORTS)
 
@@ -125,9 +148,18 @@ def center_totals_for_range(
         .filter(Transaction.created_at >= start_dt, Transaction.created_at <= end_dt)
         .one()
     )
+    adj_total, adj_doctor, adj_center = (
+        session.query(
+            func.coalesce(func.sum(Adjustment.total_amount), _ZERO),
+            func.coalesce(func.sum(Adjustment.doctor_amount), _ZERO),
+            func.coalesce(func.sum(Adjustment.center_amount), _ZERO),
+        )
+        .filter(Adjustment.created_at >= start_dt, Adjustment.created_at <= end_dt)
+        .one()
+    )
     return CenterTotals(
         transaction_count=count,
-        total_amount=total,
-        doctor_amount=doctor_sum,
-        center_amount=center_sum,
+        total_amount=total + adj_total,
+        doctor_amount=doctor_sum + adj_doctor,
+        center_amount=center_sum + adj_center,
     )

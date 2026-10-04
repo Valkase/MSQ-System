@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QLabel, QLineEdit, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
 
 from gui.actions import run_logic
+from PySide6.QtCore import Qt, QTimer, Signal
 from i18n import t
 from logic import patients
 
@@ -12,6 +13,7 @@ MAX_RESULTS = 50
 
 
 class PatientPicker(QWidget):
+    changed = Signal()  # emitted when the user picks a patient
     def __init__(self, controller):
         super().__init__()
         self.controller = controller
@@ -79,3 +81,4 @@ class PatientPicker(QWidget):
     def _choose(self, item: QListWidgetItem) -> None:
         self._id, self._name = item.data(Qt.ItemDataRole.UserRole)
         self.selected_label.setText(t("gui.transactions.selected_patient", name=self._name))
+        self.changed.emit()

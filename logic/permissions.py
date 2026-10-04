@@ -39,6 +39,7 @@ class Permission(Enum):
     VIEW_REPORTS = auto()
     MANAGE_DOCTORS = auto()
     MANAGE_USERS = auto()
+    ADJUST_TRANSACTION = auto()
 
 
 # Receptionists: day-to-day patient and transaction entry (design doc
@@ -71,6 +72,7 @@ _ADMIN_ONLY_PERMISSIONS = frozenset(
     {
         Permission.MANAGE_DOCTORS,
         Permission.MANAGE_USERS,
+        Permission.ADJUST_TRANSACTION,
     }
 )
 
@@ -93,6 +95,7 @@ _ACTION_KEYS: dict[Permission, str] = {
     Permission.VIEW_REPORTS: "permissions.actions.view_reports",
     Permission.MANAGE_DOCTORS: "permissions.actions.manage_doctors",
     Permission.MANAGE_USERS: "permissions.actions.manage_users",
+    Permission.ADJUST_TRANSACTION: "permissions.actions.adjust_transaction",
 }
 
 

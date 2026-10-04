@@ -33,6 +33,7 @@ from gui.users_page import UsersPage
 from logic import auth
 from logic.errors import AccountLockedError, AuthenticationError
 from gui.reports_page import ReportsPage
+from gui.adjustments_page import AdjustmentsPage
 
 # (message key for the label, permission needed to see it — None = everyone logged in)
 _NAV = [
@@ -41,6 +42,7 @@ _NAV = [
     ("gui.nav.reports", Permission.VIEW_REPORTS),
     ("gui.nav.doctors", Permission.MANAGE_DOCTORS),
     ("gui.nav.users", Permission.MANAGE_USERS),
+    ("gui.nav.adjustments", Permission.ADJUST_TRANSACTION),
 ]
 
 IDLE_CHECK_INTERVAL_MS = 15_000
@@ -129,6 +131,8 @@ class MainWindow(QMainWindow):
             return UsersPage(self.controller)
         if key == "gui.nav.reports":
             return ReportsPage(self.controller)
+        if key == "gui.nav.adjustments":
+            return AdjustmentsPage(self.controller)
         return PlaceholderPage(t(key))  # swapped out as each screen is built
 
     def _check_idle(self) -> None:

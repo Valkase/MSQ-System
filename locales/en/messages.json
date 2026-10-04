@@ -202,5 +202,30 @@
   "gui.reports.doctors_share": "Doctors' share",
   "gui.reports.center_share": "Center's share",
   "gui.reports.col_doctor": "Doctor",
-  "gui.reports.col_count": "Transactions"
+  "gui.reports.col_count": "Transactions",
+    "fields.adjustment_amount": "Adjustment amount",
+  "fields.reason": "Reason",
+  "validation.amount_zero": "{field} must not be zero.",
+  "adjustments.exceeds_net": "This adjustment would make the net total negative (current net total: {net}).",
+  "permissions.actions.adjust_transaction": "adjust a transaction",
+
+  "gui.nav.adjustments": "Adjustments",
+  "gui.transactions.net_suffix": "(net {amount})",
+
+  "gui.adjustments.new_title": "Adjust a transaction",
+  "gui.adjustments.note": "A saved transaction is never edited. Enter a negative amount to reduce it, a positive amount to increase it, or use Void to reverse it entirely. To fix a wrong patient or doctor, void the transaction and record a new one.",
+  "gui.adjustments.transaction": "Transaction",
+  "gui.adjustments.pick_patient": "Search and select a patient to see their transactions.",
+  "gui.adjustments.select_transaction": "Select the transaction to adjust.",
+  "gui.adjustments.no_transactions": "This patient has no transactions.",
+  "gui.adjustments.select_transaction_first": "Select a transaction first.",
+  "gui.adjustments.void": "Void entire transaction",
+  "gui.adjustments.preview_title": "Result after adjustment",
+  "gui.adjustments.preview": "New net total: {net}\nDoctor: {doctor}\nCenter: {center}",
+  "gui.adjustments.save": "Record adjustment",
+  "gui.adjustments.confirm": "Adjust the transaction of {patient} with {doctor} by {change}?\n\nNew net total: {net}\nDoctor: {doctor_amount}\nCenter: {center_amount}\nReason: {reason}\n\nAn adjustment cannot be edited or deleted.",
+  "gui.adjustments.recorded": "Adjustment recorded.",
+  "gui.adjustments.recent": "Recent adjustments",
+  "gui.adjustments.col_change": "Change",
+  "gui.adjustments.col_by": "Recorded by"
 }

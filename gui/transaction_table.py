@@ -14,6 +14,12 @@ def _local(value: datetime) -> datetime:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone()
 
+def _with_net(value, adjustment) -> str:
+    text = format_currency(value)
+    if adjustment:
+        text += "  " + t("gui.transactions.net_suffix", amount=format_currency(value + adjustment))
+    return text
+
 
 class TransactionTable(QTableWidget):
     def __init__(self, *, show_patient: bool):
@@ -45,9 +51,9 @@ class TransactionTable(QTableWidget):
                 cells.append((row.patient_name, None))
             cells += [
                 (row.doctor_name, None),
-                (format_currency(row.total_amount), number_align),
-                (format_currency(row.doctor_amount), number_align),
-                (format_currency(row.center_amount), number_align),
+                (_with_net(row.total_amount, row.adjusted_total), number_align),
+                (_with_net(row.doctor_amount, row.adjusted_doctor), number_align),
+                (_with_net(row.center_amount, row.adjusted_center), number_align),
                 (row.description or "", None),
             ]
             for c, (text, align) in enumerate(cells):
