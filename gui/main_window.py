@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QDialog,
+    QMessageBox
 )
 
 from gui.db import db_session
@@ -23,6 +25,13 @@ from logic.app_session import current_session
 from logic.permissions import Permission, has_permission
 from gui.patients_page import PatientsPage
 from gui.transactions_page import TransactionsPage
+
+from gui.actions import run_logic, show_message
+from gui.doctors_page import DoctorsPage
+from gui.password_dialog import PasswordDialog
+from gui.users_page import UsersPage
+from logic import auth
+from logic.errors import AccountLockedError, AuthenticationError
 
 # (message key for the label, permission needed to see it — None = everyone logged in)
 _NAV = [
@@ -72,6 +81,9 @@ class MainWindow(QMainWindow):
         header.addWidget(LanguageSwitcher(controller))
         logout_button = QPushButton(t("gui.logout"))
         logout_button.clicked.connect(lambda: controller.show_login())
+        change_pw_button = QPushButton(t("gui.change_password"))
+        change_pw_button.clicked.connect(self._change_password)
+        header.addWidget(change_pw_button)
         header.addWidget(logout_button)
 
         self.nav = QListWidget()
@@ -110,8 +122,42 @@ class MainWindow(QMainWindow):
             return PatientsPage(self.controller)
         if key == "gui.nav.transactions":
             return TransactionsPage(self.controller)
+        if key == "gui.nav.doctors":
+            return DoctorsPage(self.controller)
+        if key == "gui.nav.users":
+            return UsersPage(self.controller)
         return PlaceholderPage(t(key))  # swapped out as each screen is built
 
     def _check_idle(self) -> None:
         if not current_session.is_logged_in():
             self.controller.show_login(t("auth.session_expired"))
+
+    def _change_password(self) -> None:
+        def save(values: dict, parent) -> bool:
+            def apply(db, user):
+                try:
+                    auth.change_password(
+                        db,
+                        acting_user=user,
+                        current_password=values["current"],
+                        new_password=values["new"],
+                    )
+                except AccountLockedError:
+                    raise  # real lockout: run_logic sends the user to the login screen
+                except AuthenticationError as exc:
+                    return str(exc)  # wrong current password: show it here, don't log them out
+                return None
+
+            ok, error = run_logic(parent, self.controller, apply)
+            if not ok:
+                return False
+            if error:
+                show_message(parent, error)
+                return False
+            return True
+
+        dialog = PasswordDialog(
+            self, title=t("gui.change_password.title"), save=save, ask_current=True
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            show_message(self, t("gui.change_password.done"), QMessageBox.Icon.Information)
