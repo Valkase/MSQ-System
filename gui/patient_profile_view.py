@@ -29,6 +29,8 @@ from i18n import format_date, t
 from logic import attachments, patients
 from logic.errors import PatientHasTransactionsError
 from logic.permissions import Permission, has_permission
+from gui.transaction_table import TransactionTable
+from logic import attachments, patients, transactions
 
 
 class PatientProfileView(QWidget):
@@ -92,11 +94,19 @@ class PatientProfileView(QWidget):
         box_layout.addWidget(self.attach_list)
         box_layout.addLayout(attach_row)
 
+        self.history_table = TransactionTable(show_patient=False)
+        self.history_empty = QLabel(t("gui.transactions.history_empty"))
+        history_box = QGroupBox(t("gui.transactions.history_title"))
+        history_layout = QVBoxLayout(history_box)
+        history_layout.addWidget(self.history_empty)
+        history_layout.addWidget(self.history_table)
+
         layout = QVBoxLayout(self)
         layout.addLayout(header)
         layout.addLayout(form)
         layout.addLayout(actions)
         layout.addWidget(box, 1)
+        layout.addWidget(history_box, 1)
 
     # --- loading ---------------------------------------------------------------
 
@@ -106,6 +116,14 @@ class PatientProfileView(QWidget):
         def fetch(db, user):
             p = patients.get_patient(db, patient_id)
             atts = patients.list_attachments(db, patient_id)
+            perms = {perm for perm in Permission if has_permission(user, perm)}
+            history = (
+                transactions.list_transaction_rows(
+                    db, patient_id=patient_id, acting_user=user, limit=50
+                )
+                if Permission.VIEW_REPORTS in perms
+                else []
+            )
             return {
                 "patient": {
                     "full_name": p.full_name,
@@ -119,7 +137,8 @@ class PatientProfileView(QWidget):
                     {"id": a.id, "file_path": a.file_path, "description": a.description}
                     for a in atts
                 ],
-                "perms": {perm for perm in Permission if has_permission(user, perm)},
+                "perms": perms,
+                "transactions": history,
             }
 
         ok, data = run_logic(self, self.controller, fetch)
@@ -162,6 +181,9 @@ class PatientProfileView(QWidget):
             self.attach_list.addItem(item)
         self.empty_label.setVisible(not data["attachments"])
         self.attach_list.setVisible(bool(data["attachments"]))
+        self.history_table.set_rows(data["transactions"])
+        self.history_empty.setVisible(not data["transactions"])
+        self.history_table.setVisible(bool(data["transactions"]))
 
     # --- actions ---------------------------------------------------------------
 

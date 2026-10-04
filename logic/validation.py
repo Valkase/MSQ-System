@@ -103,14 +103,18 @@ def _to_decimal(value, field_key: str) -> Decimal:
     means a caller passing a Python float here is itself a bug we want
     to surface, not silently accept, since float -> Decimal conversion
     can bake in binary-rounding error before we ever see the value.
+    NaN / Infinity parse as Decimals but are never valid amounts.
     """
     field_name = t(field_key)
     if isinstance(value, float):
         raise ValidationError(t("validation.not_a_decimal", field=field_name))
     try:
-        return Decimal(value)
+        result = Decimal(value)
     except (InvalidOperation, TypeError, ValueError) as exc:
         raise ValidationError(t("validation.not_a_number", field=field_name)) from exc
+    if not result.is_finite():
+        raise ValidationError(t("validation.not_a_number", field=field_name))
+    return result
 
 
 def validate_amount(value, field_key: str = "fields.total_amount") -> Decimal:

@@ -20,7 +20,6 @@ side of this same rule.
 """
 
 import uuid
-from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy.orm import Session
@@ -34,6 +33,9 @@ from logic.dates import day_bounds_utc
 from logic.errors import NotFoundError, ValidationError
 from logic.permissions import Permission, require_permission
 from logic.validation import validate_amount, validate_optional_text, validate_percentage
+from dataclasses import dataclass
+from datetime import date, datetime
+
 
 TWO_PLACES = Decimal("0.01")
 
@@ -158,7 +160,64 @@ def list_transactions(
         raise ValidationError(t("transactions.date_range_incomplete"))
     return q.order_by(Transaction.created_at.desc()).all()
 
+@dataclass(frozen=True)
+class TransactionRow:
+    """Plain-value view of a transaction plus the names the GUI displays."""
 
+    id: uuid.UUID
+    created_at: datetime
+    patient_id: uuid.UUID
+    patient_name: str
+    doctor_id: uuid.UUID
+    doctor_name: str
+    total_amount: Decimal
+    doctor_percentage: Decimal
+    doctor_amount: Decimal
+    center_amount: Decimal
+    description: str | None
+
+
+def list_transaction_rows(
+    session: Session,
+    *,
+    acting_user: User,
+    patient_id: uuid.UUID | None = None,
+    limit: int = 100,
+) -> list[TransactionRow]:
+    """
+    Newest-first transactions with patient and doctor names joined in, for
+    the transactions screen (all patients) and the patient billing history
+    (one patient). Requires VIEW_REPORTS (task plan 2.4): it's financial
+    data, and this keeps a deactivated account from reading it. Returns
+    frozen dataclasses, safe to use after the DB session closes.
+    """
+    require_permission(acting_user, Permission.VIEW_REPORTS)
+
+    q = (
+        session.query(Transaction, Patient.full_name, Doctor.name)
+        .join(Patient, Patient.id == Transaction.patient_id)
+        .join(Doctor, Doctor.id == Transaction.doctor_id)
+    )
+    if patient_id is not None:
+        q = q.filter(Transaction.patient_id == patient_id)
+    rows = q.order_by(Transaction.created_at.desc()).limit(limit).all()
+
+    return [
+        TransactionRow(
+            id=txn.id,
+            created_at=txn.created_at,
+            patient_id=txn.patient_id,
+            patient_name=patient_name,
+            doctor_id=txn.doctor_id,
+            doctor_name=doctor_name,
+            total_amount=txn.total_amount,
+            doctor_percentage=txn.doctor_percentage,
+            doctor_amount=txn.doctor_amount,
+            center_amount=txn.center_amount,
+            description=txn.description,
+        )
+        for txn, patient_name, doctor_name in rows
+    ]
 # ---------------------------------------------------------------------------
 # Adjustments / corrections — OPEN DESIGN ITEM, not built.
 # ---------------------------------------------------------------------------

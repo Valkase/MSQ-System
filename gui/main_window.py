@@ -22,6 +22,7 @@ from i18n import t
 from logic.app_session import current_session
 from logic.permissions import Permission, has_permission
 from gui.patients_page import PatientsPage
+from gui.transactions_page import TransactionsPage
 
 # (message key for the label, permission needed to see it — None = everyone logged in)
 _NAV = [
@@ -80,9 +81,7 @@ class MainWindow(QMainWindow):
             if permission is not None and permission not in allowed:
                 continue
             self.nav.addItem(t(key))
-            self.pages.addWidget(PlaceholderPage(t(key)))
-        self.nav.currentRowChanged.connect(self.pages.setCurrentIndex)
-        self.nav.setCurrentRow(max(0, min(start_page, self.nav.count() - 1)))
+            self.pages.addWidget(self._build_page(key))
 
         body = QHBoxLayout()
         body.addWidget(self.nav)
@@ -106,6 +105,8 @@ class MainWindow(QMainWindow):
     def _build_page(self, key: str) -> QWidget:
         if key == "gui.nav.patients":
             return PatientsPage(self.controller)
+        if key == "gui.nav.transactions":
+            return TransactionsPage(self.controller)
         return PlaceholderPage(t(key))  # swapped out as each screen is built
 
     def _check_idle(self) -> None:
