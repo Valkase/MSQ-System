@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 from gui.actions import confirm, run_logic, show_message
 from i18n import format_number, t
 from logic import doctors
+from gui.edit_history_view import show_history
 
 
 class DoctorFormDialog(QDialog):
@@ -61,6 +62,8 @@ class DoctorFormDialog(QDialog):
         layout.addWidget(note)
         layout.addWidget(buttons)
         self.name.setFocus()
+        self.history_button = QPushButton(t("gui.history.button"))
+        self.history_button.clicked.connect(self._history)
 
     def values(self) -> dict:
         return {"name": self.name.text(), "percentage": self.percentage.text().strip()}
@@ -92,8 +95,10 @@ class DoctorsPage(QWidget):
         top.addWidget(new_button)
         top.addWidget(self.edit_button)
         top.addWidget(self.toggle_button)
+        top.addWidget(self.history_button)
         top.addStretch()
         top.addWidget(self.show_inactive)
+        
 
         self.table = QTableWidget(0, 3)
         self.table.setHorizontalHeaderLabels(
@@ -240,3 +245,16 @@ class DoctorsPage(QWidget):
         )
         if ok:
             self.refresh()
+
+
+    def _history(self) -> None:
+        doctor = self._require_selection()
+        if doctor is None:
+            return
+        show_history(
+            self,
+            self.controller,
+            table_name="doctors",
+            record_id=doctor["id"],
+            title=doctor["name"],
+        )
