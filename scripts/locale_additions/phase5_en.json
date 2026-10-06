@@ -1,0 +1,13 @@
+{
+  "gui.version": "Version {version}",
+  "gui.update.available": "Version {version} is available.",
+  "gui.update.button": "Update now",
+  "gui.update.downloading": "Downloading update…",
+  "gui.update.restarting": "Installing the update. The application will restart…",
+  "gui.update.failed_download": "The update could not be downloaded. Check your internet connection and try again later.",
+  "gui.update.failed_verify": "The downloaded update failed its security check and was not installed. Contact an administrator.",
+  "gui.update.failed_apply": "The update could not be started. Please contact an administrator.",
+  "gui.schema.behind": "The database must be upgraded by an administrator before this version can be used.",
+  "gui.schema.ahead": "The database is newer than this application. Please update the application.",
+  "gui.schema.not_initialized": "The database has not been set up yet. Contact an administrator."
+}

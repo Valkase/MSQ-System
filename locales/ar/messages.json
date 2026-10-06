@@ -11,7 +11,6 @@
   "fields.username": "اسم المستخدم",
   "fields.password": "كلمة المرور",
   "fields.role": "الدور",
-
   "validation.required": "{field} مطلوب.",
   "validation.max_length": "يجب ألا يتجاوز {field} {max_length} حرفًا.",
   "validation.phone_required": "رقم الهاتف مطلوب.",
@@ -28,18 +27,13 @@
   "validation.password_too_long": "يجب ألا تتجاوز كلمة المرور {max_length} حرفًا.",
   "validation.password_unchanged": "يجب أن تختلف كلمة المرور الجديدة عن كلمة المرور الحالية.",
   "validation.role_invalid": "يجب أن يكون الدور أحد القيم التالية: {roles}.",
-
   "patients.not_found": "لا يوجد مريض بالمعرّف {patient_id}.",
   "patients.delete_blocked_has_transactions": "هذا المريض لديه سجل معاملات مالية ولا يمكن حذفه. يرجى إلغاء تفعيل المريض بدلاً من ذلك.",
-
   "doctors.not_found": "لا يوجد طبيب بالمعرّف {doctor_id}.",
   "doctors.inactive_cannot_transact": "الطبيب '{doctor_name}' غير نشط ولا يمكن تسجيل معاملة جديدة له.",
-
   "transactions.not_found": "لا توجد معاملة بالمعرّف {transaction_id}.",
   "transactions.date_range_incomplete": "يجب تحديد تاريخ البداية وتاريخ النهاية معًا، أو عدم تحديد أي منهما.",
-
   "dates.end_before_start": "لا يمكن أن يكون تاريخ النهاية قبل تاريخ البداية.",
-
   "auth.invalid_credentials": "اسم المستخدم أو كلمة المرور غير صحيحة.",
   "auth.account_locked": "تم قفل الحساب بسبب كثرة المحاولات الفاشلة. حاول مرة أخرى بعد {minutes} دقيقة.",
   "auth.account_deactivated": "هذا الحساب غير مُفعّل. يرجى التواصل مع المسؤول.",
@@ -47,10 +41,8 @@
   "auth.not_logged_in": "يجب تسجيل الدخول للمتابعة.",
   "auth.session_expired": "انتهت الجلسة بسبب عدم النشاط. يرجى تسجيل الدخول مرة أخرى.",
   "auth.username_taken": "اسم المستخدم '{username}' مستخدم بالفعل.",
-
   "users.not_found": "لا يوجد مستخدم بالمعرّف {user_id}.",
   "users.cannot_deactivate_self": "لا يمكنك إلغاء تفعيل حسابك الخاص.",
-
   "permissions.actions.create_patient": "إنشاء مريض جديد",
   "permissions.actions.edit_patient": "تعديل بيانات مريض",
   "permissions.actions.delete_patient": "حذف مريض",
@@ -77,8 +69,7 @@
   "gui.nav.users": "المستخدمون",
   "gui.role.admin": "مسؤول",
   "gui.role.receptionist": "موظف استقبال",
-    "fields.date_of_birth": "تاريخ الميلاد",
-
+  "fields.date_of_birth": "تاريخ الميلاد",
   "gui.save": "حفظ",
   "gui.cancel": "إلغاء",
   "gui.yes": "نعم",
@@ -86,7 +77,6 @@
   "gui.ok": "موافق",
   "gui.back": "العودة إلى القائمة",
   "gui.edit": "تعديل",
-
   "gui.patients.search_placeholder": "ابحث بالاسم أو رقم الهاتف…",
   "gui.patients.show_inactive": "إظهار المرضى غير النشطين",
   "gui.patients.new": "مريض جديد",
@@ -108,7 +98,6 @@
   "gui.patients.confirm_reactivate": "هل تريد إعادة تفعيل {name}؟",
   "gui.patients.confirm_delete": "هل تريد حذف {name} نهائيًا؟ لا يمكن التراجع عن ذلك. استخدم هذا الخيار فقط للسجلات المُنشأة بالخطأ.",
   "gui.patients.deactivate_now": "هل تريد إلغاء تفعيل هذا المريض الآن؟",
-
   "gui.attachments.title": "المرفقات",
   "gui.attachments.attach": "إرفاق ملف…",
   "gui.attachments.open": "فتح",
@@ -117,11 +106,10 @@
   "gui.attachments.desc_title": "وصف المرفق",
   "gui.attachments.desc_label": "الوصف (اختياري):",
   "gui.attachments.select_first": "اختر مرفقًا أولًا.",
-
   "attachments.not_found": "لا يوجد مرفق بالمعرّف {attachment_id}.",
   "attachments.file_missing": "تعذر العثور على الملف في المسار: {file_path}. ربما نُقل أو حُذف، أو أُرفق من جهاز كمبيوتر آخر.",
   "attachments.open_failed": "تعذر فتح الملف: {file_path}",
-    "gui.transactions.new_title": "معاملة جديدة",
+  "gui.transactions.new_title": "معاملة جديدة",
   "gui.transactions.patient": "المريض",
   "gui.transactions.patient_search_placeholder": "ابحث عن مريض بالاسم أو رقم الهاتف…",
   "gui.transactions.no_patient_selected": "لم يتم اختيار مريض",
@@ -146,12 +134,11 @@
   "gui.transactions.col_doctor_share": "حصة الطبيب",
   "gui.transactions.col_center_share": "حصة المركز",
   "gui.transactions.col_description": "الوصف",
-    "gui.deactivate": "إلغاء التفعيل",
+  "gui.deactivate": "إلغاء التفعيل",
   "gui.reactivate": "إعادة التفعيل",
   "gui.status.active": "نشط",
   "gui.status.inactive": "غير نشط",
   "gui.status.locked": "مقفل",
-
   "gui.doctors.new": "طبيب جديد",
   "gui.doctors.edit": "تعديل الطبيب",
   "gui.doctors.new_title": "طبيب جديد",
@@ -165,7 +152,6 @@
   "gui.doctors.confirm_deactivate": "هل تريد إلغاء تفعيل {name}؟ لن يظهر عند تسجيل المعاملات.",
   "gui.doctors.confirm_reactivate": "هل تريد إعادة تفعيل {name}؟",
   "gui.doctors.count": "عدد الأطباء المعروضين: {count}",
-
   "gui.users.new": "مستخدم جديد",
   "gui.users.new_title": "مستخدم جديد",
   "gui.users.reset_password": "إعادة تعيين كلمة المرور",
@@ -183,11 +169,10 @@
   "gui.users.password_confirm": "تأكيد كلمة المرور",
   "gui.users.password_mismatch": "كلمتا المرور غير متطابقتين.",
   "gui.users.password_reset_done": "تمت إعادة تعيين كلمة المرور للمستخدم {name}.",
-
   "gui.change_password": "تغيير كلمة المرور",
   "gui.change_password.title": "تغيير كلمة المرور الخاصة بي",
   "gui.change_password.done": "تم تغيير كلمة المرور.",
-    "gui.reports.from": "من",
+  "gui.reports.from": "من",
   "gui.reports.to": "إلى",
   "gui.reports.run": "عرض التقرير",
   "gui.reports.preset_today": "اليوم",
@@ -203,15 +188,13 @@
   "gui.reports.center_share": "حصة المركز",
   "gui.reports.col_doctor": "الطبيب",
   "gui.reports.col_count": "عدد المعاملات",
-    "fields.adjustment_amount": "مبلغ التعديل",
+  "fields.adjustment_amount": "مبلغ التعديل",
   "fields.reason": "السبب",
   "validation.amount_zero": "يجب ألا يكون {field} صفرًا.",
   "adjustments.exceeds_net": "هذا التعديل سيجعل الصافي سالبًا (الصافي الحالي: {net}).",
   "permissions.actions.adjust_transaction": "تعديل معاملة مالية",
-
   "gui.nav.adjustments": "التعديلات",
   "gui.transactions.net_suffix": "(الصافي {amount})",
-
   "gui.adjustments.new_title": "تعديل معاملة",
   "gui.adjustments.note": "لا تُعدَّل المعاملة المحفوظة أبدًا. أدخل مبلغًا سالبًا للتخفيض أو موجبًا للزيادة، أو استخدم «إلغاء المعاملة بالكامل» لعكسها. لتصحيح مريض أو طبيب خاطئ، ألغِ المعاملة وسجّل معاملة جديدة.",
   "gui.adjustments.transaction": "المعاملة",
@@ -228,8 +211,7 @@
   "gui.adjustments.recent": "أحدث التعديلات",
   "gui.adjustments.col_change": "التغيير",
   "gui.adjustments.col_by": "سُجّل بواسطة",
-    "permissions.actions.view_history": "عرض سجل التعديلات",
-
+  "permissions.actions.view_history": "عرض سجل التعديلات",
   "gui.close": "إغلاق",
   "gui.history.button": "السجل",
   "gui.history.title": "سجل التعديلات — {name}",
@@ -250,5 +232,16 @@
   "gui.history.field.address": "العنوان",
   "gui.history.field.active": "الحالة",
   "gui.history.field.name": "الاسم",
-  "gui.history.field.standard_percentage": "النسبة القياسية"
+  "gui.history.field.standard_percentage": "النسبة القياسية",
+  "gui.version": "الإصدار {version}",
+  "gui.update.available": "الإصدار {version} متاح.",
+  "gui.update.button": "تحديث الآن",
+  "gui.update.downloading": "جارٍ تنزيل التحديث…",
+  "gui.update.restarting": "جارٍ تثبيت التحديث. سيُعاد تشغيل التطبيق…",
+  "gui.update.failed_download": "تعذر تنزيل التحديث. تحقق من اتصال الإنترنت وحاول لاحقًا.",
+  "gui.update.failed_verify": "فشل التحديث المُنزَّل في الفحص الأمني ولم يتم تثبيته. يرجى التواصل مع المسؤول.",
+  "gui.update.failed_apply": "تعذر بدء التحديث. يرجى التواصل مع المسؤول.",
+  "gui.schema.behind": "يجب أن يقوم المسؤول بترقية قاعدة البيانات قبل استخدام هذا الإصدار.",
+  "gui.schema.ahead": "قاعدة البيانات أحدث من هذا التطبيق. يرجى تحديث التطبيق.",
+  "gui.schema.not_initialized": "لم يتم إعداد قاعدة البيانات بعد. يرجى التواصل مع المسؤول."
 }

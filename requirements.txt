@@ -1,8 +1,10 @@
 sqlalchemy
+alembic
 psycopg2-binary
 argon2-cffi
 requests
 python-dotenv
-pytest
 babel
 PySide6
+packaging
+cryptography

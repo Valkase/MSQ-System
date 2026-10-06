@@ -11,7 +11,6 @@
   "fields.username": "Username",
   "fields.password": "Password",
   "fields.role": "Role",
-
   "validation.required": "{field} is required.",
   "validation.max_length": "{field} must be {max_length} characters or fewer.",
   "validation.phone_required": "Phone number is required.",
@@ -28,18 +27,13 @@
   "validation.password_too_long": "Password must be {max_length} characters or fewer.",
   "validation.password_unchanged": "The new password must be different from the current password.",
   "validation.role_invalid": "Role must be one of: {roles}.",
-
   "patients.not_found": "No patient found with id {patient_id}.",
   "patients.delete_blocked_has_transactions": "This patient has transaction history and cannot be deleted. Deactivate the patient instead.",
-
   "doctors.not_found": "No doctor found with id {doctor_id}.",
   "doctors.inactive_cannot_transact": "Doctor '{doctor_name}' is not active and cannot be assigned a new transaction.",
-
   "transactions.not_found": "No transaction found with id {transaction_id}.",
   "transactions.date_range_incomplete": "Start date and end date must both be provided, or neither.",
-
   "dates.end_before_start": "End date cannot be before start date.",
-
   "auth.invalid_credentials": "Invalid username or password.",
   "auth.account_locked": "Too many failed attempts. This account is locked; try again in {minutes} minute(s).",
   "auth.account_deactivated": "This account is deactivated. Please contact an administrator.",
@@ -47,10 +41,8 @@
   "auth.not_logged_in": "You must log in to continue.",
   "auth.session_expired": "Your session expired due to inactivity. Please log in again.",
   "auth.username_taken": "The username '{username}' is already taken.",
-
   "users.not_found": "No user found with id {user_id}.",
   "users.cannot_deactivate_self": "You cannot deactivate your own account.",
-
   "permissions.actions.create_patient": "create a patient",
   "permissions.actions.edit_patient": "edit a patient",
   "permissions.actions.delete_patient": "delete a patient",
@@ -78,7 +70,6 @@
   "gui.role.admin": "Administrator",
   "gui.role.receptionist": "Receptionist",
   "fields.date_of_birth": "Date of birth",
-
   "gui.save": "Save",
   "gui.cancel": "Cancel",
   "gui.yes": "Yes",
@@ -86,7 +77,6 @@
   "gui.ok": "OK",
   "gui.back": "Back to list",
   "gui.edit": "Edit",
-
   "gui.patients.search_placeholder": "Search by name or phone…",
   "gui.patients.show_inactive": "Show inactive patients",
   "gui.patients.new": "New patient",
@@ -108,7 +98,6 @@
   "gui.patients.confirm_reactivate": "Reactivate {name}?",
   "gui.patients.confirm_delete": "Permanently delete {name}? This cannot be undone. Use this only for records created by mistake.",
   "gui.patients.deactivate_now": "Deactivate this patient now?",
-
   "gui.attachments.title": "Attachments",
   "gui.attachments.attach": "Attach file…",
   "gui.attachments.open": "Open",
@@ -117,11 +106,10 @@
   "gui.attachments.desc_title": "Attachment description",
   "gui.attachments.desc_label": "Description (optional):",
   "gui.attachments.select_first": "Select an attachment first.",
-
   "attachments.not_found": "No attachment found with id {attachment_id}.",
   "attachments.file_missing": "The file could not be found at: {file_path}. It may have been moved or deleted, or it was attached from a different computer.",
   "attachments.open_failed": "The file could not be opened: {file_path}",
-    "gui.transactions.new_title": "New transaction",
+  "gui.transactions.new_title": "New transaction",
   "gui.transactions.patient": "Patient",
   "gui.transactions.patient_search_placeholder": "Search patient by name or phone…",
   "gui.transactions.no_patient_selected": "No patient selected",
@@ -146,12 +134,11 @@
   "gui.transactions.col_doctor_share": "Doctor's share",
   "gui.transactions.col_center_share": "Center's share",
   "gui.transactions.col_description": "Description",
-    "gui.deactivate": "Deactivate",
+  "gui.deactivate": "Deactivate",
   "gui.reactivate": "Reactivate",
   "gui.status.active": "Active",
   "gui.status.inactive": "Inactive",
   "gui.status.locked": "Locked",
-
   "gui.doctors.new": "New doctor",
   "gui.doctors.edit": "Edit doctor",
   "gui.doctors.new_title": "New doctor",
@@ -165,7 +152,6 @@
   "gui.doctors.confirm_deactivate": "Deactivate {name}? They will no longer appear when recording transactions.",
   "gui.doctors.confirm_reactivate": "Reactivate {name}?",
   "gui.doctors.count": "{count} doctor(s) shown",
-
   "gui.users.new": "New user",
   "gui.users.new_title": "New user",
   "gui.users.reset_password": "Reset password",
@@ -183,11 +169,10 @@
   "gui.users.password_confirm": "Confirm password",
   "gui.users.password_mismatch": "The passwords do not match.",
   "gui.users.password_reset_done": "Password reset for {name}.",
-
   "gui.change_password": "Change password",
   "gui.change_password.title": "Change my password",
   "gui.change_password.done": "Your password was changed.",
-    "gui.reports.from": "From",
+  "gui.reports.from": "From",
   "gui.reports.to": "To",
   "gui.reports.run": "Show report",
   "gui.reports.preset_today": "Today",
@@ -203,15 +188,13 @@
   "gui.reports.center_share": "Center's share",
   "gui.reports.col_doctor": "Doctor",
   "gui.reports.col_count": "Transactions",
-    "fields.adjustment_amount": "Adjustment amount",
+  "fields.adjustment_amount": "Adjustment amount",
   "fields.reason": "Reason",
   "validation.amount_zero": "{field} must not be zero.",
   "adjustments.exceeds_net": "This adjustment would make the net total negative (current net total: {net}).",
   "permissions.actions.adjust_transaction": "adjust a transaction",
-
   "gui.nav.adjustments": "Adjustments",
   "gui.transactions.net_suffix": "(net {amount})",
-
   "gui.adjustments.new_title": "Adjust a transaction",
   "gui.adjustments.note": "A saved transaction is never edited. Enter a negative amount to reduce it, a positive amount to increase it, or use Void to reverse it entirely. To fix a wrong patient or doctor, void the transaction and record a new one.",
   "gui.adjustments.transaction": "Transaction",
@@ -228,8 +211,7 @@
   "gui.adjustments.recent": "Recent adjustments",
   "gui.adjustments.col_change": "Change",
   "gui.adjustments.col_by": "Recorded by",
-    "permissions.actions.view_history": "view edit history",
-
+  "permissions.actions.view_history": "view edit history",
   "gui.close": "Close",
   "gui.history.button": "History",
   "gui.history.title": "Edit history — {name}",
@@ -250,5 +232,17 @@
   "gui.history.field.address": "Address",
   "gui.history.field.active": "Status",
   "gui.history.field.name": "Name",
-  "gui.history.field.standard_percentage": "Standard percentage"
+  "gui.history.field.standard_percentage": "Standard percentage",
+  "gui.version": "Version {version}",
+  "gui.update.available": "Version {version} is available.",
+  "gui.update.button": "Update now",
+  "gui.update.downloading": "Downloading update…",
+  "gui.update.restarting": "Installing the update. The application will restart…",
+  "gui.update.failed_download": "The update could not be downloaded. Check your internet connection and try again later.",
+  "gui.update.failed_verify": "The downloaded update failed its security check and was not installed. Contact an administrator.",
+  "gui.update.failed_apply": "The update could not be started. Please contact an administrator.",
+  "gui.schema.behind": "The database must be upgraded by an administrator before this version can be used.",
+  "gui.schema.ahead": "The database is newer than this application. Please update the application.",
+  "gui.schema.not_initialized": "The database has not been set up yet. Contact an administrator."
+  
 }

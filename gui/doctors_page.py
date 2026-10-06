@@ -54,6 +54,8 @@ class DoctorFormDialog(QDialog):
         self._save_button = buttons.addButton(t("gui.save"), QDialogButtonBox.ButtonRole.AcceptRole)
         buttons.addButton(t("gui.cancel"), QDialogButtonBox.ButtonRole.RejectRole)
         self._save_button.setDefault(True)
+        self.history_button = QPushButton(t("gui.history.button"))
+        self.history_button.clicked.connect(self._history)
         buttons.accepted.connect(self._on_save)
         buttons.rejected.connect(self.reject)
 
@@ -62,8 +64,7 @@ class DoctorFormDialog(QDialog):
         layout.addWidget(note)
         layout.addWidget(buttons)
         self.name.setFocus()
-        self.history_button = QPushButton(t("gui.history.button"))
-        self.history_button.clicked.connect(self._history)
+
 
     def values(self) -> dict:
         return {"name": self.name.text(), "percentage": self.percentage.text().strip()}
@@ -98,6 +99,7 @@ class DoctorsPage(QWidget):
         top.addWidget(self.history_button)
         top.addStretch()
         top.addWidget(self.show_inactive)
+        
         
 
         self.table = QTableWidget(0, 3)

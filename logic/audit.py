@@ -11,12 +11,17 @@ route through here.
 Transactions are the one deliberate exception (data/models/transaction.py
 docstring, task plan 2.3 last item): they are append-only and never pass
 through update_and_log's "edit" path. `record_creation` below covers the
-*creation* half (used for patients, and could be reused for transactions'
-own creation logging if that's ever wanted), but nothing in this module
-offers an update/delete path for a Transaction, deliberately.
+*creation* half (used for patients), but nothing in this module offers an
+update/delete path for a Transaction, deliberately.
+
+Reading history: `get_history` returns raw AuditLog rows (oldest first).
+`list_history_entries` is what the Phase 4 edit-history view uses: it is
+permission-gated (VIEW_HISTORY), joins in the username, and returns plain
+frozen dataclasses that are safe to use after the DB session closes.
 """
 
 import uuid
+from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -25,7 +30,13 @@ from sqlalchemy.orm import Session
 
 from data.models.audit_log import AuditLog
 from data.models.transaction import Transaction
+from data.models.user import User
 from logic.errors import LogicError
+from logic.permissions import Permission, require_permission
+
+ACTION_CREATED = "created"
+ACTION_EDITED = "edited"
+ACTION_DELETED = "deleted"
 
 
 def _json_safe(value: Any) -> Any:
@@ -164,10 +175,10 @@ def update_and_log(
 
 def get_history(session: Session, *, table_name: str, record_id: uuid.UUID) -> list[AuditLog]:
     """
-    Fetch the full audit trail for one record, oldest first — the data
-    source for the Phase 4 "edit history" view. Deliberately not
-    paginated: per-record history for this clinic's scale is expected to
-    stay small (individual patient/doctor edit counts, not the whole log).
+    Fetch the full audit trail for one record, oldest first. Raw, ungated
+    building block; the GUI should use `list_history_entries` instead.
+    Deliberately not paginated: per-record history for this clinic's scale
+    is expected to stay small (one patient's/doctor's edit count).
     """
     return (
         session.query(AuditLog)
@@ -175,3 +186,73 @@ def get_history(session: Session, *, table_name: str, record_id: uuid.UUID) -> l
         .order_by(AuditLog.created_at.asc())
         .all()
     )
+
+
+# --- edit-history view support (task plan Phase 4) ---------------------------------
+
+
+@dataclass(frozen=True)
+class FieldChange:
+    """One field's before/after. Values are JSON-safe (Decimal/date arrive as strings)."""
+
+    field: str
+    old: Any
+    new: Any
+
+
+@dataclass(frozen=True)
+class HistoryEntry:
+    """One audit_log row, flattened for display."""
+
+    id: uuid.UUID
+    created_at: datetime
+    action: str  # ACTION_CREATED / ACTION_EDITED / ACTION_DELETED
+    changed_by_name: str
+    changes: tuple[FieldChange, ...]
+
+
+def _to_entry(log: AuditLog, username: str) -> HistoryEntry:
+    old = log.old_values or {}
+    new = log.new_values or {}
+
+    if new == {"deleted": True}:
+        # Delete convention (logic/patients.py): old_values is the removed row's snapshot.
+        action = ACTION_DELETED
+        changes = tuple(FieldChange(k, v, None) for k, v in old.items())
+    elif log.old_values is None and "password_changed" not in new:
+        action = ACTION_CREATED
+        changes = tuple(FieldChange(k, None, v) for k, v in new.items())
+    else:
+        action = ACTION_EDITED
+        changes = tuple(FieldChange(k, old.get(k), v) for k, v in new.items())
+
+    return HistoryEntry(
+        id=log.id,
+        created_at=log.created_at,
+        action=action,
+        changed_by_name=username,
+        changes=changes,
+    )
+
+
+def list_history_entries(
+    session: Session,
+    *,
+    table_name: str,
+    record_id: uuid.UUID,
+    acting_user: User,
+) -> list[HistoryEntry]:
+    """
+    Newest-first edit history for one record, with the editing user's
+    username joined in. Requires VIEW_HISTORY (admin-only).
+    """
+    require_permission(acting_user, Permission.VIEW_HISTORY)
+
+    rows = (
+        session.query(AuditLog, User.username)
+        .join(User, User.id == AuditLog.changed_by)
+        .filter(AuditLog.table_name == table_name, AuditLog.record_id == record_id)
+        .order_by(AuditLog.created_at.desc())
+        .all()
+    )
+    return [_to_entry(log, username) for log, username in rows]

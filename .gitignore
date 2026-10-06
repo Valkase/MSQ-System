@@ -1,5 +1,6 @@
 # Environment & secrets
 .env
+*.key
 
 # Python
 __pycache__/
@@ -8,10 +9,9 @@ __pycache__/
 .venv/
 venv/
 
-# Build artifacts
+# Build artifacts (HealthCenterSystem.spec is committed on purpose)
 build/
 dist/
-*.spec
 
 # OS / editor junk
 .DS_Store

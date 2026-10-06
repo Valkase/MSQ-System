@@ -1,4 +1,4 @@
-"""Login screen (task plan Phase 4, first item)."""
+"""Login screen (task plan Phase 4, first item) + Phase 5 update banner and schema guard."""
 
 import logging
 
@@ -13,13 +13,22 @@ from PySide6.QtWidgets import (
 )
 from sqlalchemy.exc import OperationalError
 
+from data.schema_check import SchemaStatus
 from gui.db import db_session
+from gui.update_banner import UpdateBanner
 from gui.widgets import LanguageSwitcher
 from i18n import t
 from logic import auth
 from logic.errors import AccountLockedError, AuthenticationError
+from version import __version__
 
 log = logging.getLogger(__name__)
+
+_SCHEMA_MESSAGES = {
+    SchemaStatus.DB_BEHIND: "gui.schema.behind",
+    SchemaStatus.DB_AHEAD: "gui.schema.ahead",
+    SchemaStatus.NOT_INITIALIZED: "gui.schema.not_initialized",
+}
 
 
 class LoginScreen(QWidget):
@@ -54,6 +63,10 @@ class LoginScreen(QWidget):
         self.username.returnPressed.connect(self.password.setFocus)
         self.password.returnPressed.connect(self._attempt_login)
 
+        version_label = QLabel(t("gui.version", version=__version__))
+        version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        version_label.setStyleSheet("color: #888888;")
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(32, 32, 32, 24)
         layout.setSpacing(14)
@@ -61,10 +74,19 @@ class LoginScreen(QWidget):
         layout.addLayout(form)
         layout.addWidget(self.error_label)
         layout.addWidget(self.button)
+        layout.addWidget(UpdateBanner(controller))
         layout.addStretch()
+        layout.addWidget(version_label)
         layout.addWidget(LanguageSwitcher(controller))
 
-        if message:
+        # The shared database and this build must agree on the schema. If not,
+        # logging in could read/write the wrong tables, so block it and say why
+        # (a newer app version is offered by the banner above when available).
+        schema_key = _SCHEMA_MESSAGES.get(controller.schema_status())
+        if schema_key:
+            self._show_error(t(schema_key))
+            self.button.setEnabled(False)
+        elif message:
             self._show_error(message)
         self.username.setFocus()
 
@@ -79,6 +101,8 @@ class LoginScreen(QWidget):
         self.password.setFocus()
 
     def _attempt_login(self) -> None:
+        if not self.button.isEnabled():  # schema guard: Enter key must not bypass it
+            return
         username = self.username.text().strip()
         password = self.password.text()
         if not username or not password:

@@ -1,7 +1,7 @@
 """
 Patient profile view (task plan Phase 4): details, edit, deactivate /
 reactivate, delete (falls back to deactivation when transactions exist),
-and attachments.
+attachments, billing history, and (admin-only) edit history.
 """
 
 import os
@@ -24,13 +24,13 @@ from PySide6.QtWidgets import (
 )
 
 from gui.actions import confirm, run_logic, show_message
+from gui.edit_history_view import show_history
 from gui.patient_form import PatientFormDialog
+from gui.transaction_table import TransactionTable
 from i18n import format_date, t
-from logic import attachments, patients
+from logic import attachments, patients, transactions
 from logic.errors import PatientHasTransactionsError
 from logic.permissions import Permission, has_permission
-from gui.transaction_table import TransactionTable
-from logic import attachments, patients, transactions
 
 
 class PatientProfileView(QWidget):
@@ -69,11 +69,14 @@ class PatientProfileView(QWidget):
         self.edit_button.clicked.connect(self._edit)
         self.toggle_button = QPushButton()
         self.toggle_button.clicked.connect(self._toggle_active)
+        self.history_button = QPushButton(t("gui.history.button"))
+        self.history_button.clicked.connect(self._history)
         self.delete_button = QPushButton(t("gui.patients.delete"))
         self.delete_button.clicked.connect(self._delete)
         actions = QHBoxLayout()
         actions.addWidget(self.edit_button)
         actions.addWidget(self.toggle_button)
+        actions.addWidget(self.history_button)
         actions.addStretch()
         actions.addWidget(self.delete_button)
 
@@ -171,6 +174,7 @@ class PatientProfileView(QWidget):
         self.toggle_button.setEnabled(Permission.DEACTIVATE_PATIENT in perms)
         self.delete_button.setEnabled(Permission.DELETE_PATIENT in perms)
         self.attach_button.setEnabled(Permission.ATTACH_FILE in perms)
+        self.history_button.setVisible(Permission.VIEW_HISTORY in perms)
 
         self.attach_list.clear()
         for a in data["attachments"]:
@@ -203,6 +207,15 @@ class PatientProfileView(QWidget):
         )
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.load(self._patient_id)
+
+    def _history(self) -> None:
+        show_history(
+            self,
+            self.controller,
+            table_name="patients",
+            record_id=self._patient_id,
+            title=self._patient["full_name"],
+        )
 
     def _toggle_active(self) -> None:
         activate = not self._patient["active"]

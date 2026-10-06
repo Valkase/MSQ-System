@@ -34,7 +34,8 @@ from pathlib import Path
 DEFAULT_LOCALE = "en"
 SUPPORTED_LOCALES = ("en", "ar")
 
-_LOCALES_DIR = Path(__file__).resolve().parent.parent / "locales"
+from app_paths import resource_path
+_LOCALES_DIR = resource_path("locales")
 
 _current_locale = DEFAULT_LOCALE
 
