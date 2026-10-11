@@ -8,14 +8,14 @@ refuses to install any update.
 """
 
 GITHUB_OWNER = "Valkase"
-GITHUB_REPO = "https://github.com/Valkase/MSQ-System"
+GITHUB_REPO = "hcs-update-test"
 
 # Release asset names. Each release must contain all three.
 APP_EXE_NAME = "HealthCenterSystem.exe"
 CHECKSUM_ASSET_NAME = APP_EXE_NAME + ".sha256"
 SIGNATURE_ASSET_NAME = APP_EXE_NAME + ".sig"
 
-SIGNING_PUBLIC_KEY_HEX = "Ed25519"
+SIGNING_PUBLIC_KEY_HEX = "b605733e02959d78718b432427429ecc66922ab870deca614c34b1bd4efe3043"
 
 USER_AGENT = "HealthCenterSystem-Updater"
 CHECK_TIMEOUT_SECONDS = 10

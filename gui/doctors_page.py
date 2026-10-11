@@ -54,8 +54,6 @@ class DoctorFormDialog(QDialog):
         self._save_button = buttons.addButton(t("gui.save"), QDialogButtonBox.ButtonRole.AcceptRole)
         buttons.addButton(t("gui.cancel"), QDialogButtonBox.ButtonRole.RejectRole)
         self._save_button.setDefault(True)
-        self.history_button = QPushButton(t("gui.history.button"))
-        self.history_button.clicked.connect(self._history)
         buttons.accepted.connect(self._on_save)
         buttons.rejected.connect(self.reject)
 
@@ -91,6 +89,8 @@ class DoctorsPage(QWidget):
         self.edit_button.clicked.connect(self._edit)
         self.toggle_button = QPushButton(t("gui.deactivate"))
         self.toggle_button.clicked.connect(self._toggle_active)
+        self.history_button = QPushButton(t("gui.history.button"))
+        self.history_button.clicked.connect(self._history)
 
         top = QHBoxLayout()
         top.addWidget(new_button)
@@ -99,8 +99,6 @@ class DoctorsPage(QWidget):
         top.addWidget(self.history_button)
         top.addStretch()
         top.addWidget(self.show_inactive)
-        
-        
 
         self.table = QTableWidget(0, 3)
         self.table.setHorizontalHeaderLabels(
