@@ -32,10 +32,12 @@ def merge(catalog_path: Path, additions_path: Path) -> int:
     )
     return len(new)
 
-
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    phase = (argv if argv is not None else sys.argv[1:] or ["5"])[0]
     for code in ("en", "ar"):
-        added = merge(ROOT / "locales" / code / "messages.json", ADDITIONS / f"phase5_{code}.json")
+        added = merge(
+            ROOT / "locales" / code / "messages.json", ADDITIONS / f"phase{phase}_{code}.json"
+        )
         print(f"locales/{code}/messages.json: {added} key(s) added")
     return 0
 

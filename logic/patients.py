@@ -41,12 +41,31 @@ from logic.validation import (
     validate_required_text,
 )
 
+from sqlalchemy.exc import IntegrityError
+
 # Fields captured in the "created" audit snapshot and available for edit.
 _EDITABLE_FIELDS = ("full_name", "phone", "email", "date_of_birth", "address")
 
 
-def _get_patient_or_raise(session: Session, patient_id: uuid.UUID) -> Patient:
-    patient = session.get(Patient, patient_id)
+def _get_patient_or_raise(
+    session: Session, patient_id: uuid.UUID, *, lock: bool = False
+) -> Patient:
+    """
+    Fetch a patient or raise NotFoundError. With lock=True the row is locked
+    (SELECT ... FOR UPDATE, ignored by SQLite) and refreshed, so concurrent
+    writers from other desks are serialized and each one sees the previous
+    writer's committed values (keeps audit old/new values consistent).
+    """
+    if lock:
+        patient = (
+            session.query(Patient)
+            .filter(Patient.id == patient_id)
+            .with_for_update()
+            .populate_existing()
+            .first()
+        )
+    else:
+        patient = session.get(Patient, patient_id)
     if patient is None:
         raise NotFoundError(t("patients.not_found", patient_id=patient_id))
     return patient
@@ -138,17 +157,12 @@ def edit_patient(
 ) -> Patient:
     """
     Edit a patient profile. Only fields explicitly passed are validated
-    and changed — omitted keyword args are left untouched. Routes through
-    logic.audit.update_and_log (task plan 2.1 "must route through the
-    update-and-log function") so every edit is captured in audit_log.
-
-    Use Ellipsis (the default) to mean "leave unchanged" for the optional
-    fields, since None is a legitimate value to set them to (e.g.
-    clearing an address).
+    and changed. Routes through logic.audit.update_and_log. The row is
+    locked just before the update so concurrent edits are serialized.
     """
     require_permission(acting_user, Permission.EDIT_PATIENT)
 
-    patient = _get_patient_or_raise(session, patient_id)
+    patient = _get_patient_or_raise(session, patient_id)  # clear NotFound first
 
     changes: dict[str, object] = {}
     if full_name is not None:
@@ -166,6 +180,7 @@ def edit_patient(
         return patient  # nothing to do, nothing to log
 
     try:
+        patient = _get_patient_or_raise(session, patient_id, lock=True)
         update_and_log(session, instance=patient, changes=changes, changed_by=acting_user.id)
         session.commit()
     except Exception:
@@ -182,7 +197,7 @@ def deactivate_patient(session: Session, *, patient_id: uuid.UUID, acting_user: 
     """
     require_permission(acting_user, Permission.DEACTIVATE_PATIENT)
 
-    patient = _get_patient_or_raise(session, patient_id)
+    patient = _get_patient_or_raise(session, patient_id, lock=True)
     try:
         update_and_log(
             session, instance=patient, changes={"active": False}, changed_by=acting_user.id
@@ -198,7 +213,7 @@ def reactivate_patient(session: Session, *, patient_id: uuid.UUID, acting_user: 
     """Reverse of deactivate_patient — reasonable companion action, same audit path."""
     require_permission(acting_user, Permission.DEACTIVATE_PATIENT)
 
-    patient = _get_patient_or_raise(session, patient_id)
+    patient = _get_patient_or_raise(session, patient_id, lock=True)
     try:
         update_and_log(
             session, instance=patient, changes={"active": True}, changed_by=acting_user.id
@@ -213,21 +228,17 @@ def reactivate_patient(session: Session, *, patient_id: uuid.UUID, acting_user: 
 def delete_patient(session: Session, *, patient_id: uuid.UUID, acting_user: User) -> None:
     """
     Permanently delete a patient — ONLY when they have zero transactions
-    (design doc Section 2.1 / 9: deletion is for genuine data-entry
-    mistakes, not a way to erase financial history). Raises
-    PatientHasTransactionsError if any transaction references this
-    patient; callers should catch this and offer deactivate_patient
-    instead, per the design doc.
+    (design doc Section 2.1 / 9). Raises PatientHasTransactionsError if any
+    transaction references this patient (including one committed by another
+    desk at the same moment).
 
-    Logs the deletion to audit_log as a special case: old_values is a
-    snapshot of the row being removed, new_values is {"deleted": True}
-    (new_values can't be null on the model, and there's no "after" state
-    for a deleted row — this is the documented convention for delete
-    entries in this table, distinct from a normal field edit).
+    The patient's attachment references (path rows only, never files) are
+    removed with the patient. Logs the deletion to audit_log: old_values is a
+    snapshot of the removed row, new_values is {"deleted": True}.
     """
     require_permission(acting_user, Permission.DELETE_PATIENT)
 
-    patient = _get_patient_or_raise(session, patient_id)
+    patient = _get_patient_or_raise(session, patient_id, lock=True)
 
     has_transactions = (
         session.query(Transaction.id).filter(Transaction.patient_id == patient_id).first()
@@ -247,8 +258,15 @@ def delete_patient(session: Session, *, patient_id: uuid.UUID, acting_user: User
             old_values=old_values,
             new_values={"deleted": True},
         )
+        session.query(Attachment).filter(Attachment.patient_id == patient.id).delete(
+            synchronize_session=False
+        )
         session.delete(patient)
         session.commit()
+    except IntegrityError as exc:
+        # A transaction for this patient was committed after our check.
+        session.rollback()
+        raise PatientHasTransactionsError(t("patients.delete_blocked_has_transactions")) from exc
     except Exception:
         session.rollback()
         raise

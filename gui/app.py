@@ -41,6 +41,7 @@ class AppController:
     def __init__(self, app: QApplication):
         self.app = app
         self.window = None
+        self.backup_alert_shown = False  # one backup warning per login, not per rebuild
         self.settings = QSettings("HealthCenter", "HealthCenterSystem")
         self._activity_filter = _ActivityFilter()
         app.installEventFilter(self._activity_filter)
@@ -113,6 +114,7 @@ class AppController:
 
     def show_login(self, message: str | None = None) -> None:
         auth.logout()
+        self.backup_alert_shown = False
         self._replace(LoginScreen(self, message))
 
     def show_main(self, page: int = 0) -> None:

@@ -10,6 +10,9 @@ than in transactions.py: "Write a function to update a doctor's
 standard_percentage (goes through the update-and-log function, so rate
 changes are auditable)". Everything else about a doctor (name, active
 flag) is ordinary record management, so it's grouped in the same module.
+
+Phase 6: write paths lock the doctor row (SELECT ... FOR UPDATE) so two
+admins editing at once can't interleave and corrupt the audit trail.
 """
 
 import uuid
@@ -27,8 +30,19 @@ from logic.validation import validate_percentage, validate_required_text
 _CREATE_FIELDS = ("name", "standard_percentage", "active")
 
 
-def _get_doctor_or_raise(session: Session, doctor_id: uuid.UUID) -> Doctor:
-    doctor = session.get(Doctor, doctor_id)
+def _get_doctor_or_raise(
+    session: Session, doctor_id: uuid.UUID, *, lock: bool = False
+) -> Doctor:
+    if lock:
+        doctor = (
+            session.query(Doctor)
+            .filter(Doctor.id == doctor_id)
+            .with_for_update()
+            .populate_existing()
+            .first()
+        )
+    else:
+        doctor = session.get(Doctor, doctor_id)
     if doctor is None:
         raise NotFoundError(t("doctors.not_found", doctor_id=doctor_id))
     return doctor
@@ -83,18 +97,17 @@ def update_doctor_percentage(
     Update a doctor's standing split rate (task plan 2.2). Admin-only
     (task plan 2.4). Routed through update_and_log so the change (old %
     -> new %, who, when) is captured in audit_log — this is the ONLY
-    sanctioned way to change standard_percentage; never set it directly
-    on the model elsewhere.
+    sanctioned way to change standard_percentage.
 
-    Per Doctor's docstring / Transaction's docstring: this never
-    retroactively touches existing transactions, since those store their
-    own copied percentage from the time they were created.
+    Never retroactively touches existing transactions, since those store
+    their own copied percentage from the time they were created.
     """
     require_permission(acting_user, Permission.MANAGE_DOCTORS)
 
-    doctor = _get_doctor_or_raise(session, doctor_id)
+    _get_doctor_or_raise(session, doctor_id)  # clear NotFound first
     clean_pct = validate_percentage(new_percentage, "fields.standard_percentage")
     try:
+        doctor = _get_doctor_or_raise(session, doctor_id, lock=True)
         update_and_log(
             session,
             instance=doctor,
@@ -112,9 +125,10 @@ def rename_doctor(session: Session, *, doctor_id: uuid.UUID, new_name: str, acti
     """Correct/update a doctor's display name. Admin-only, routed through update_and_log."""
     require_permission(acting_user, Permission.MANAGE_DOCTORS)
 
-    doctor = _get_doctor_or_raise(session, doctor_id)
+    _get_doctor_or_raise(session, doctor_id)  # clear NotFound first
     clean_name = validate_required_text(new_name, "fields.doctor_name", max_length=120)
     try:
+        doctor = _get_doctor_or_raise(session, doctor_id, lock=True)
         update_and_log(
             session, instance=doctor, changes={"name": clean_name}, changed_by=acting_user.id
         )
@@ -129,7 +143,7 @@ def deactivate_doctor(session: Session, *, doctor_id: uuid.UUID, acting_user: Us
     """Soft-disable a doctor no longer practicing at the center (design doc Section 6). Admin-only."""
     require_permission(acting_user, Permission.MANAGE_DOCTORS)
 
-    doctor = _get_doctor_or_raise(session, doctor_id)
+    doctor = _get_doctor_or_raise(session, doctor_id, lock=True)
     try:
         update_and_log(session, instance=doctor, changes={"active": False}, changed_by=acting_user.id)
         session.commit()
@@ -142,7 +156,7 @@ def deactivate_doctor(session: Session, *, doctor_id: uuid.UUID, acting_user: Us
 def reactivate_doctor(session: Session, *, doctor_id: uuid.UUID, acting_user: User) -> Doctor:
     require_permission(acting_user, Permission.MANAGE_DOCTORS)
 
-    doctor = _get_doctor_or_raise(session, doctor_id)
+    doctor = _get_doctor_or_raise(session, doctor_id, lock=True)
     try:
         update_and_log(session, instance=doctor, changes={"active": True}, changed_by=acting_user.id)
         session.commit()

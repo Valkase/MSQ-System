@@ -1,0 +1,8 @@
+{
+  "permissions.actions.view_backup_status": "view backup status",
+  "gui.backup.alert_never": "No successful database backup has ever been recorded.",
+  "gui.backup.alert_overdue": "The last successful database backup was on {when}. A backup is overdue.",
+  "gui.backup.reason_drive_missing": "The backup flash drive was not found at the last attempt. Connect it to the database PC; the backup will then run automatically.",
+  "gui.backup.reason_failed": "The last backup attempt failed. Check the backup log on the database PC.",
+  "gui.backup.reason_none": "No recent backup attempt was recorded. Check that the scheduled backup task is running on the database PC."
+}

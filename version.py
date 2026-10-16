@@ -20,7 +20,9 @@ SCHEMA_REVISIONS = (
     "9da1262da4b3",  # attachments, audit_logs
     "c84aa5948943",  # login lockout columns
     "8bd5cca79952",  # adjustments
+    "a3f9c2d71b64",  # backup_runs
 )
+
 
 # The database revision this build of the app requires.
 EXPECTED_SCHEMA_REVISION = SCHEMA_REVISIONS[-1]

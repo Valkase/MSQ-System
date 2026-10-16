@@ -243,6 +243,11 @@
   "gui.update.failed_apply": "The update could not be started. Please contact an administrator.",
   "gui.schema.behind": "The database must be upgraded by an administrator before this version can be used.",
   "gui.schema.ahead": "The database is newer than this application. Please update the application.",
-  "gui.schema.not_initialized": "The database has not been set up yet. Contact an administrator."
-  
+  "gui.schema.not_initialized": "The database has not been set up yet. Contact an administrator.",
+  "permissions.actions.view_backup_status": "view backup status",
+  "gui.backup.alert_never": "No successful database backup has ever been recorded.",
+  "gui.backup.alert_overdue": "The last successful database backup was on {when}. A backup is overdue.",
+  "gui.backup.reason_drive_missing": "The backup flash drive was not found at the last attempt. Connect it to the database PC; the backup will then run automatically.",
+  "gui.backup.reason_failed": "The last backup attempt failed. Check the backup log on the database PC.",
+  "gui.backup.reason_none": "No recent backup attempt was recorded. Check that the scheduled backup task is running on the database PC."
 }

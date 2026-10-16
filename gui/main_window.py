@@ -35,6 +35,11 @@ from logic.errors import AccountLockedError, AuthenticationError
 from gui.reports_page import ReportsPage
 from gui.adjustments_page import AdjustmentsPage
 
+from backup import settings as backup_settings
+from gui.transaction_table import _local
+from i18n import format_datetime
+from logic import backup_status
+
 # (message key for the label, permission needed to see it — None = everyone logged in)
 _NAV = [
     ("gui.nav.patients", None),
@@ -44,6 +49,10 @@ _NAV = [
     ("gui.nav.users", Permission.MANAGE_USERS),
     ("gui.nav.adjustments", Permission.ADJUST_TRANSACTION),
 ]
+_BACKUP_REASONS = {
+    "drive_missing": "gui.backup.reason_drive_missing",
+    "failed": "gui.backup.reason_failed",
+}
 
 IDLE_CHECK_INTERVAL_MS = 15_000
 
@@ -116,6 +125,8 @@ class MainWindow(QMainWindow):
         self._idle_timer = QTimer(self)
         self._idle_timer.timeout.connect(self._check_idle)
         self._idle_timer.start(IDLE_CHECK_INTERVAL_MS)
+        if Permission.VIEW_BACKUP_STATUS in allowed:
+            QTimer.singleShot(0, self._check_backup_health)
 
     def current_page(self) -> int:
         return self.nav.currentRow()
@@ -168,3 +179,25 @@ class MainWindow(QMainWindow):
         )
         if dialog.exec() == QDialog.DialogCode.Accepted:
             show_message(self, t("gui.change_password.done"), QMessageBox.Icon.Information)
+    
+    def _check_backup_health(self) -> None:
+        """Warn an admin, once per login, when backups are overdue."""
+        if self.controller.backup_alert_shown or not backup_settings.alerts_enabled():
+            return
+        self.controller.backup_alert_shown = True
+
+        ok, health = run_logic(
+            self,
+            self.controller,
+            lambda db, user: backup_status.get_backup_health(db, acting_user=user),
+        )
+        if not ok or health.state == backup_status.STATE_OK:
+            return
+
+        if health.last_success_at is None:
+            headline = t("gui.backup.alert_never")
+        else:
+            when = format_datetime(_local(health.last_success_at), format="short")
+            headline = t("gui.backup.alert_overdue", when=when)
+        reason = t(_BACKUP_REASONS.get(health.last_attempt_status, "gui.backup.reason_none"))
+        show_message(self, f"{headline}\n\n{reason}")

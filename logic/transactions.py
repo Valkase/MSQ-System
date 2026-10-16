@@ -22,6 +22,7 @@ side of this same rule.
 import uuid
 from decimal import ROUND_HALF_UP, Decimal
 
+from requests import session
 from sqlalchemy.orm import Session
 
 from data.models.doctor import Doctor
@@ -38,6 +39,8 @@ from datetime import date, datetime
 from sqlalchemy import func
 
 from data.models.adjustment import Adjustment
+
+from sqlalchemy.exc import IntegrityError
 
 TWO_PLACES = Decimal("0.01")
 
@@ -122,6 +125,11 @@ def record_transaction(
     session.add(transaction)
     try:
         session.commit()
+    except IntegrityError as exc:
+        # The patient was deleted by another desk between our existence
+        # check and the insert (FK violation) — report it as "not found".
+        session.rollback()
+        raise NotFoundError(t("patients.not_found", patient_id=patient_id)) from exc
     except Exception:
         session.rollback()
         raise

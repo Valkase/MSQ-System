@@ -34,11 +34,13 @@ from data.models.user import User
 from logic.errors import LogicError
 from logic.permissions import Permission, require_permission
 
+from data.models.adjustment import Adjustment
+
 ACTION_CREATED = "created"
 ACTION_EDITED = "edited"
 ACTION_DELETED = "deleted"
 
-
+_IMMUTABLE_MODELS = (Transaction, Adjustment, AuditLog)
 def _json_safe(value: Any) -> Any:
     """
     Convert a single field value into something the JSONB column can
@@ -114,6 +116,7 @@ def record_creation(
     )
 
 
+
 def update_and_log(
     session: Session,
     *,
@@ -121,6 +124,12 @@ def update_and_log(
     changes: dict[str, Any],
     changed_by: uuid.UUID,
 ) -> AuditLog | None:
+    if isinstance(instance, _IMMUTABLE_MODELS):
+        raise LogicError(
+            f"{type(instance).__name__} records are immutable and can never be modified "
+            "via update_and_log (see task plan 2.3 and data/models/transaction.py). "
+            "There is deliberately no update path for them anywhere in the logic layer."
+        )
     """
     Apply `changes` (field_name -> new_value) to `instance`, and write a
     single audit_log entry capturing only the fields that actually
