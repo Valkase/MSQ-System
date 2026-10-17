@@ -18,3 +18,6 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+
+
+installer/postgresql-installer.exe

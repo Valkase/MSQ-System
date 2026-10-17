@@ -8,7 +8,7 @@ refuses to install any update.
 """
 
 GITHUB_OWNER = "Valkase"
-GITHUB_REPO = "hcs-update-test"
+GITHUB_REPO = "MSQ-System"
 
 # Release asset names. Each release must contain all three.
 APP_EXE_NAME = "HealthCenterSystem.exe"

@@ -1,0 +1,6 @@
+{
+  "gui.drive.pick_title": "Choose the backup flash drive (the drive itself, for example E:\\)",
+  "gui.drive.not_root": "Please choose the main folder of the drive (for example E:\\), not a folder inside it.",
+  "gui.drive.done": "Drive {drive} is now a backup drive. Backups will be written to it automatically while it is connected.",
+  "gui.drive.failed": "The drive could not be set up: {error}"
+}

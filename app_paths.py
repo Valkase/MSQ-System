@@ -31,8 +31,16 @@ def install_dir() -> Path:
     return Path(sys.executable).resolve().parent if is_frozen() else _PROJECT_ROOT
 
 
+def shared_config_dir() -> Path:
+    """Machine-wide settings folder (single-PC installer): C:\\ProgramData\\HealthCenterSystem."""
+    return Path(os.environ.get("PROGRAMDATA") or r"C:\ProgramData") / APP_DIR_NAME
+
+
 def config_dir() -> Path:
     if is_frozen():
+        shared = shared_config_dir()
+        if (shared / ".env").is_file():  # set up by the installer: also readable by the SYSTEM backup task
+            return shared
         base = Path(os.environ.get("APPDATA") or Path.home())
         return base / APP_DIR_NAME
     return _PROJECT_ROOT

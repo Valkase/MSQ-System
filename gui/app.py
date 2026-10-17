@@ -5,7 +5,7 @@ directly — they ask the controller (show_login / show_main /
 change_language / apply_update), so swapping screens and rebuilding after a
 language change happen in exactly one place.
 """
-
+import os
 import logging
 import sys
 from pathlib import Path
@@ -81,11 +81,20 @@ class AppController:
     def schema_status(self) -> SchemaStatus | None:
         """
         Does the shared database match this build's schema? None when it can't
-        be determined (e.g. database unreachable): the login attempt will then
-        report the connection problem itself.
+        be determined. With AUTO_MIGRATE=1 (set by the single-PC installer) a
+        database that is behind is upgraded automatically, after a safety copy.
         """
         try:
-            return check_schema(engine)
+            status = check_schema(engine)
+            if status is SchemaStatus.DB_BEHIND and os.getenv("AUTO_MIGRATE") == "1":
+                try:
+                    from setup_tool import upgrade_database
+
+                    upgrade_database()
+                    status = check_schema(engine)
+                except Exception:
+                    log.exception("Automatic database upgrade failed")
+            return status
         except Exception:
             log.warning("Could not check the database schema", exc_info=True)
             return None

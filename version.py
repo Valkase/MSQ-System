@@ -10,7 +10,7 @@ revision id to the END whenever you add a migration; tests/test_schema_check.py
 fails if this tuple drifts from the real migration chain.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 SCHEMA_REVISIONS = (
     "21409c91c206",  # users

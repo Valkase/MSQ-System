@@ -1,11 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
-# Build with:  python -m scripts.build_release --tag vX.Y.Z --key <private key>
-# (builds HealthCenterUpdater.spec first; this spec bundles dist/HealthCenterUpdater.exe)
-from PyInstaller.utils.hooks import collect_data_files
+import os
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
-datas = [("locales", "locales")]                        # i18n catalogs (app_paths.resource_path)
-datas += collect_data_files("babel")                    # CLDR locale data used by i18n/formatting.py
-datas += [("dist/HealthCenterUpdater.exe", ".")]        # swap helper, copied to temp at update time
+ROOT = os.path.abspath(SPECPATH)
+MIGRATIONS = os.path.join(ROOT, "migrations")
+assert os.path.isdir(os.path.join(MIGRATIONS, "versions")), "migrations folder not found: " + MIGRATIONS
+
+datas = [(os.path.join(ROOT, "locales"), "locales")]
+datas += collect_data_files("babel")
+datas += [(MIGRATIONS, "migrations")]
+datas += [(os.path.join(ROOT, "dist", "HealthCenterUpdater.exe"), ".")]
+
+hiddenimports = [
+    "psycopg2",
+    "sqlalchemy.dialects.postgresql",
+    "sqlalchemy.dialects.postgresql.psycopg2",
+    "logging.config",
+    "argon2",
+] + collect_submodules("alembic")
 
 a = Analysis(
     ["main.py"],
@@ -19,6 +31,7 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure)
+
 
 exe = EXE(
     pyz,

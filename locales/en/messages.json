@@ -249,5 +249,9 @@
   "gui.backup.alert_overdue": "The last successful database backup was on {when}. A backup is overdue.",
   "gui.backup.reason_drive_missing": "The backup flash drive was not found at the last attempt. Connect it to the database PC; the backup will then run automatically.",
   "gui.backup.reason_failed": "The last backup attempt failed. Check the backup log on the database PC.",
-  "gui.backup.reason_none": "No recent backup attempt was recorded. Check that the scheduled backup task is running on the database PC."
+  "gui.backup.reason_none": "No recent backup attempt was recorded. Check that the scheduled backup task is running on the database PC.",
+  "gui.drive.pick_title": "Choose the backup flash drive (the drive itself, for example E:\\)",
+  "gui.drive.not_root": "Please choose the main folder of the drive (for example E:\\), not a folder inside it.",
+  "gui.drive.done": "Drive {drive} is now a backup drive. Backups will be written to it automatically while it is connected.",
+  "gui.drive.failed": "The drive could not be set up: {error}"
 }
